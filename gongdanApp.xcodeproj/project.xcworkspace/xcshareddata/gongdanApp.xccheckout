@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>1B0494F7-6183-4C05-90F7-1B2E91E08417</string>
+	<key>IDESourceControlProjectName</key>
+	<string>gongdanApp</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>8C515CFCE899079DFA8E6E9584481E7C1258DB37</key>
+		<string>https://github.com/harbin6666/gongdanapp.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>gongdanApp.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>8C515CFCE899079DFA8E6E9584481E7C1258DB37</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/harbin6666/gongdanapp.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>8C515CFCE899079DFA8E6E9584481E7C1258DB37</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>8C515CFCE899079DFA8E6E9584481E7C1258DB37</string>
+			<key>IDESourceControlWCCName</key>
+			<string>gongdanApp</string>
+		</dict>
+	</array>
+</dict>
+</plist>

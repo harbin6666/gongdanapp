@@ -161,7 +161,7 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
     //frame
-    
+    NSLog(@"%@",[self description]);
     CGRect thisRc = [UIScreen mainScreen].applicationFrame;
     float naviHeight = self.navigationController.navigationBar.frame.size.height;
 	

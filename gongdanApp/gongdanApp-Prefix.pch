@@ -15,15 +15,55 @@
     #import <UIKit/UIKit.h>
     #import <Foundation/Foundation.h>
     #import <CoreData/CoreData.h>
-    #import "GDDefine.h"
+    #import "NSString+Base64Decode.h"
+
 #endif
+#undef	__INT
+#define __INT( __x )			[NSNumber numberWithInt:(NSInteger)(__x)]
+
+#undef	__UINT
+#define __UINT( __x )			[NSNumber numberWithUnsignedInt:(NSUInteger)(__x)]
+
+#undef	__LONG
+#define __LONG( __x )			[NSNumber numberWithLong:(long)(__x)]
+
+#undef	__LONGLONG
+#define __LONGLONG( __x )			[NSNumber numberWithLongLong:(long long)(__x)]
+
+#undef	__FLOAT
+#define	__FLOAT( __x )			[NSNumber numberWithFloat:(float)(__x)]
+
+#undef	__DOUBLE
+#define	__DOUBLE( __x )			[NSNumber numberWithDouble:(double)(__x)]
+
+#undef	__BOOL
+#define __BOOL( __x )			[NSNumber numberWithBool:(BOOL)(__x)]
+
+// http completion block
+typedef void(^CompletionBlock)(id aResultObject, NSError* anError, id anExtraData);
 
 #define SharedDelegate  ((AppDelegate*)[UIApplication sharedApplication].delegate)
-#ifdef DEBUG
-# define NSLog(...) NSLog(__VA_ARGS__)
-#else
-#define NSLog(...) {}
-#endif
+//#ifdef DEBUG
+//# define NSLog(...) NSLog(__VA_ARGS__)
+//#else
+//#define NSLog(...) {}
+//#endif
 
 //颜色和透明度设置
 #define RGBA(r,g,b,a)               [UIColor colorWithRed:(float)r/255.0f green:(float)g/255.0f blue:(float)b/255.0f alpha:a]
+
+// 单例
+#undef	AS_SINGLETON
+#define AS_SINGLETON( __class ) \
++ (__class *)sharedInstance;
+
+#undef	DEF_SINGLETON
+#define DEF_SINGLETON( __class ) \
++ (__class *)sharedInstance \
+{ \
+static dispatch_once_t once; \
+static __class * __singleton__; \
+dispatch_once( &once, ^{ __singleton__ = [[__class alloc] init]; } ); \
+return __singleton__; \
+}
+#define host1 @"http://120.202.255.70:8080/alarm/"//@"http://120.202.255.70:8080/alarmtest/" //

@@ -9,16 +9,28 @@
 #import "GDMainHandleVC.h"
 #import "GDAppointVC.h"
 #import "RBCustomDatePickerView.h"
-
-@interface GDMainHandleVC ()
-@property (weak, nonatomic) IBOutlet UIButton *topbarBaseInfoBtn;
-@property (weak, nonatomic) IBOutlet UIButton *topbarDetailInfoBtn;
-@property (weak, nonatomic) IBOutlet UIButton *topBarHistoryBtn;
-
+#import "GDServiceV2.h"
+#import "GDWebView.h"
+#import "FlySpeech.h"
+#import "PhoneViewPoper.h"
+#import "GDUpSearchView.h"
+#import "GDTextView.h"
+@interface GDMainHandleVC ()<UIWebViewDelegate,PhoneViewPoperDelegate>
+@property (weak, nonatomic) IBOutlet UIButton *topbarBaseInfoBtn;//基本信息
+@property (weak, nonatomic) IBOutlet UIButton *topbarDetailInfoBtn;//预处理
+@property (weak, nonatomic) IBOutlet UIButton *topBarHistoryBtn;//追单
+@property (nonatomic,weak)  IBOutlet UIView *topbar;
 @property (weak, nonatomic) IBOutlet UIButton *bottomDetailBtn;
-@property (weak, nonatomic) IBOutlet UIButton *bottomProgressRecordBtn;
+@property (weak, nonatomic) IBOutlet UIButton *bottomProgressRecordBtn;//进程记录
+
+
 @property (weak, nonatomic) IBOutlet UIScrollView *mainScrollView;
 @property (weak, nonatomic) IBOutlet UIScrollView *formFlowView;
+@property (weak, nonatomic) IBOutlet UIScrollView *followScrollView;
+
+@property(nonatomic, strong) PhoneViewPoper *viewPoper;//picker
+@property (nonatomic,strong) NSMutableDictionary *detailDic;//订单详情结果
+
 
 @property (nonatomic, strong) NSMutableDictionary *basedInfoDic;
 @property (nonatomic, strong) NSString *T2Time;
@@ -28,7 +40,7 @@
 @property (nonatomic, strong) NSArray *formFlowArr;
 
 @property (nonatomic, strong)UIImagePickerController *imagePickerController;
-@property (nonatomic, strong)UIPickerView *picker;
+//@property (nonatomic, strong)UIPickerView *picker;
 @property (nonatomic, strong)NSString *formNo;
 @property (nonatomic, strong)UIButton *handleTimeBtn;
 @property (nonatomic, strong)UITextField *handlerTF;
@@ -54,15 +66,15 @@
 @property (nonatomic, strong)UIButton *detailReasonCateBtn;
 @property (nonatomic, strong)UIButton *reasonBtn;
 @property (nonatomic, strong)UIButton *dealWaySortBtn;
-@property (nonatomic, strong)UITextView *reasonTF;
+@property (nonatomic, strong)UITextView *reasonTF;//故障原因
 @property (nonatomic, strong)UIButton *handleMethodBtn;
-@property (nonatomic, strong)UITextView *methodTV;
-
+@property (nonatomic, strong)UITextView *methodTV;//处理措施
+@property (nonatomic, strong)UIButton *yuyingBtn;
 @property (nonatomic)BOOL isLeader;
 @property (nonatomic)FormState formState;
 @property (nonatomic)FormSearchState formSearchState;
 @property (nonatomic)FormType formType;
-
+@property (nonatomic,strong)NSString *isFullClear;
 
 @property (weak, nonatomic) IBOutlet UITextView *rejectTF;
 @property (nonatomic, strong)NSString *alarmId;
@@ -74,6 +86,15 @@
 
 @property (nonatomic, strong)RBCustomDatePickerView *datePicker;
 @property (strong, nonatomic) IBOutlet UIView *rejectView;
+@property (nonatomic, strong)OTSViewPoper *popBg;
+@property (nonatomic, strong)UIButton *vendorBtn,*equiltBtn;
+@property (nonatomic, strong) NSMutableArray *equitArr ,*vendorHubResultArr,*vendorArr,*btsArr;
+@property (nonatomic, assign) BOOL donghuan;//动环类型工单
+
+@property (nonatomic, strong) UIView *searchview;
+@property (nonatomic, strong) NSString *btsName;
+@property (nonatomic,strong) UITextView*btsTxtV;
+@property (nonatomic, strong)NSString *cleartime;
 @end
 
 @implementation GDMainHandleVC
@@ -103,13 +124,12 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
-    self.title = @"工单处理";
+    self.title = @"故障工单处理";
     [self bottomBarBtnClicked:self.bottomDetailBtn];
     [self topBarBtnClicked:self.topbarBaseInfoBtn];
-    self.topBarHistoryBtn.enabled = NO;
     [self.mainScrollView setAlwaysBounceVertical:YES];
     self.handleMethodStrSize = CGSizeMake(184, 50);
-    self.handlerName = SharedDelegate.loginedUserName;
+    self.handlerName = [NSString stringWithFormat:@"%@ %@",SharedDelegate.userZhName,SharedDelegate.userTelNum] ;
     
     UITapGestureRecognizer *ges = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(closeKeyboard)];
     [self.view addGestureRecognizer:ges];
@@ -171,6 +191,37 @@
     }];
     //http://10.19.116.148:8899/alarm/set_form_state/?{"FormNo":"SD-051-130815-1643","StartTime":"2013-08-16 09:00:00","Dealor":"dd"," FormState":0}
 }
+
+//flag：1阶段回复2告警核实、3获取清除时间4延时申请 返回结果（失败 成功）；清除时间（Flag=3）
+- (void)gaojingAction:(NSString *)flag doc:(NSString*)doc{
+    NSMutableDictionary *dic = [NSMutableDictionary dictionary];
+    [dic setSafeObject:SharedDelegate.loginedUserName forKey:@"Dealor"];
+    [dic setSafeObject:self.formNo forKey:@"FormNo"];
+    [dic setSafeObject:flag forKey:@"Flag"];
+    [dic setSafeObject:[self dateToNSString:[NSDate date]] forKey:@"StartTime"];
+    [dic setSafeObject:@"2" forKey:@"PfType"];
+    [dic setSafeObject:doc forKey:@"Doc"];
+    [dic setSafeObject:SharedDelegate.userTelNum forKey:@"Tel"];
+    [dic setSafeObject:SharedDelegate.company forKey:@"CompName"];
+    [dic setSafeObject:SharedDelegate.dept forKey:@"UnitName"];
+    
+    
+    [self showLoading];
+    [GDService requestWithFunctionName:@"set_commit_ext" pramaDic:dic requestMethod:@"POST" completion:^(id reObj) {
+        [self hideLoading];
+        if ([reObj isKindOfClass:[NSDictionary class]]) {
+            NSDictionary *dic = reObj;
+            //3是清除时间
+            if (flag.intValue!=3) {
+                [self showResAlert:dic[@"Res"]];
+            }else{
+#warning 获取清除时间
+                NSString *time=dic[@"Res"];
+            }
+        }
+    }];
+
+}
 - (void)rejectTheForm {
     NSMutableDictionary *dic = [NSMutableDictionary dictionary];
     [dic setSafeObject:SharedDelegate.loginedUserName forKey:@"Operator"];
@@ -208,44 +259,114 @@
             NSDictionary *dic = reObj;
             self.isLeader = ((NSNumber*)[dic objectForKey:@"Flag"]).boolValue;
         }
-        [self getBasedInfo:nil];
+#warning 老的接口
+//        [self getBasedInfo:nil];
+#warning 新的接口
+        [self getDetail];
     }];
     //http://10.19.116.148:8899/alarm/get_user_groupflag/?{"Operator":"fangmin"}
 }
-- (void)getBasedInfo:(id)sender {
+#pragma mark 合并这2个接口
+//- (void)getBasedInfo:(id)sender {
+//    NSMutableDictionary *dic = [NSMutableDictionary dictionary];
+//    //[dic setSafeObject:@"HN-051-130810-00036" forKey:@"FormNo"];
+//    [dic setSafeObject:self.formNo forKey:@"FormNo"];
+//    
+//    //[self showLoading];
+//    [GDService requestWithFunctionName:@"get_form_base" pramaDic:dic requestMethod:@"POST" completion:^(id reObj) {
+//        [self hideLoading];
+//        if ([reObj isKindOfClass:[NSDictionary class]]) {
+//            self.basedInfoDic = reObj;
+//            self.T2Time = [self.basedInfoDic objectForKey:@"T2Time"];
+//            [self updateDisplayView];
+//            [self getDetailInfo:nil];
+//            //[self getHandleExp:nil];
+//        }
+//        [self getFormFlow:nil];
+//    }];
+//    //http://10.19.116.148:8899/alarm/get_form_base/?{"FormNo":"HN-051-130810-00036"}
+//}
+//- (void)getDetailInfo:(id)sender {
+//    NSMutableDictionary *dic = [NSMutableDictionary dictionary];
+//    //[dic setSafeObject:@"HN-051-130810-00036" forKey:@"FormNo"];
+//    [dic setSafeObject:self.formNo forKey:@"FormNo"];
+//    
+//    [GDService requestWithFunctionName:@"get_form_detail" pramaDic:dic requestMethod:@"POST" completion:^(id reObj) {
+//        if ([reObj isKindOfClass:[NSArray class]]) {
+//            self.detailInfoArr = reObj;
+//            if (self.topbarDetailInfoBtn.selected) {
+//                [self updateDisplayView];
+//            }
+//        }
+//    }];
+//    //http://10.19.116.148:8899/alarm/get_form_detail/?{"FormNo":"HN-051-130810-00036"}
+//}
+
+-(void)getDetail{
     NSMutableDictionary *dic = [NSMutableDictionary dictionary];
-    //[dic setSafeObject:@"HN-051-130810-00036" forKey:@"FormNo"];
+//    self.formNo=@"HB-051-141224-23086";
     [dic setSafeObject:self.formNo forKey:@"FormNo"];
-    
-    //[self showLoading];
-    [GDService requestWithFunctionName:@"get_form_base" pramaDic:dic requestMethod:@"POST" completion:^(id reObj) {
+    [GDServiceV2 requestFunc:@"wo_get_form_info" WithParam:dic withCompletBlcok:^(id reObj, NSError *error) {
         [self hideLoading];
         if ([reObj isKindOfClass:[NSDictionary class]]) {
-            self.basedInfoDic = reObj;
-            self.T2Time = [self.basedInfoDic objectForKey:@"T2Time"];
-            [self updateDisplayView];
-            [self getDetailInfo:nil];
-            //[self getHandleExp:nil];
+            self.detailDic =(NSMutableDictionary*)reObj;
+            NSLog(@"%@",reObj);
+            self.T2Time = [self.detailDic objectForKey:@"T2Time"];
+            self.alarmId=[self.detailDic objectForKey:@"Alarm_id"];
+            self.btsName=[self.detailDic objectForKey:@"BtsName"];
+            self.cleartime=[self.detailDic objectForKey:@"ClearTime"];
+#warning 网络一级分类为：动力设备， ID： 101010406
+            if ([[self.detailDic objectForKey:@"NetSort_one"] isEqualToString:@"101010406"]) {
+                self.donghuan=YES;
+            }
+            if (self.topbarBaseInfoBtn.selected) {
+                [self updateDisplayView];
+            }
+
         }
         [self getFormFlow:nil];
+        [self updateFollowView];
     }];
-    //http://10.19.116.148:8899/alarm/get_form_base/?{"FormNo":"HN-051-130810-00036"}
-}
-- (void)getDetailInfo:(id)sender {
-    NSMutableDictionary *dic = [NSMutableDictionary dictionary];
-    //[dic setSafeObject:@"HN-051-130810-00036" forKey:@"FormNo"];
-    [dic setSafeObject:self.formNo forKey:@"FormNo"];
     
-    [GDService requestWithFunctionName:@"get_form_detail" pramaDic:dic requestMethod:@"POST" completion:^(id reObj) {
+}
+#pragma mark --设备与厂商的关系
+-(void)getEquipMapBlock:(void(^)())anBlock{
+    [self showLoading];
+    [GDService requestWithFunctionName:@"get_vendor_hub" pramaDic:nil requestMethod:@"POST" completion:^(id reObj) {
+        [self hideLoading];
         if ([reObj isKindOfClass:[NSArray class]]) {
-            self.detailInfoArr = reObj;
-            if (self.topbarDetailInfoBtn.selected) {
-                [self updateDisplayView];
+            NSMutableArray *arr = (NSMutableArray*)reObj;
+            self.vendorHubResultArr=[[NSMutableArray alloc] initWithArray:arr copyItems:YES];
+            if (arr.count > 0) {
+                NSMutableArray *temp=[NSMutableArray array];
+                for (NSDictionary*dic in arr) {
+                    BOOL content=NO;
+                        for (NSString* equit in temp) {
+                            if ([equit isEqualToString:dic[@"EquipClassName"]]) {
+                                content=YES;
+                                break;
+                            }
+                        }
+                    if (!content) {
+                        [temp addObject:dic[@"EquipClassName"]];
+                    }else{
+                        continue;
+                    }
+                }
+                
+                NSLog(@"%@",temp);
+                self.equitArr=temp;
+                if (anBlock) {
+                    anBlock();
+                }
+                
             }
         }
     }];
-    //http://10.19.116.148:8899/alarm/get_form_detail/?{"FormNo":"HN-051-130810-00036"}
+
 }
+
+#pragma mark -----
 - (void)getHandleExp:(id)sender { // 接口不可用
     NSMutableDictionary *dic = [NSMutableDictionary dictionary];
     [dic setSafeObject:[self.basedInfoDic objectForKey:@"AlarmTitleOrg"] forKey:@"Title"];
@@ -491,7 +612,59 @@
         
     }];
 }
+
 - (void)submitHandle:(void(^)())anBlock {
+    if ([self.detailDic[@"isFullClear"] intValue]==0) {
+        [self showResAlert:@"有告警没有恢复时间，无法回单"];
+        return;
+    }
+    
+    if (self.methodTV.text==nil||[self.methodTV.text isEqualToString:@""]) {
+        [self warnNotice:@"处理措施未填写"];
+        return;
+    }
+
+    if (self.selReasonOneDic==nil) {
+        [self warnNotice:@"归因一级未填写"];
+        return;
+    }
+    if (self.selReasonTwoDic==nil) {
+        [self warnNotice:@"归因二级未填写"];
+        return;
+    }
+    if (self.selReasonThreeDic==nil) {
+        [self warnNotice:@"归因三级未填写"];
+        return;
+    }
+    if (self.reasonTF.text==nil||[self.reasonTF.text isEqualToString:@""]) {
+        [self warnNotice:@"故障原因未填写"];
+        return;
+    }
+
+
+    if (self.donghuan&&([self.vendorBtn.titleLabel.text isEqualToString:@""]||self.vendorBtn.titleLabel.text==nil)) {
+        [self warnNotice:@"请选择设备名称及厂家"];
+        return;
+    }
+    if (self.cleartime==nil||[self.cleartime isEqualToString:@""]) {
+        [self warnNotice:@"没有清除时间"];
+        return;
+    }
+    
+    
+
+    if (self.cleartime!=nil&&![self.cleartime isEqualToString:@""]) {
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+        [dateFormatter setTimeZone:[NSTimeZone localTimeZone]];
+        NSDate *clearDate = [dateFormatter dateFromString:self.cleartime];
+        NSDate *handleTime=[dateFormatter dateFromString:self.selHandleTime];
+        if ([handleTime compare:clearDate]==NSOrderedDescending) {
+            [self warnNotice:@"采取措施时间要不晚于告警清除时间"];
+            return;
+        }
+    }
+    
     NSMutableDictionary *dic = [NSMutableDictionary dictionary];
     [dic setSafeObject:self.formNo forKey:@"FormNo"];
     [dic setSafeObject:self.handleTimeBtn.titleLabel.text forKey:@"startTime"];
@@ -509,6 +682,8 @@
     [dic setSafeObject:self.handlerTF.text forKey:@"FaultDealor"];
     [dic setSafeObject:nil forKey:@"Fault_classification"];
     [dic setSafeObject:nil forKey:@"Fault_backcase"];
+#warning 动环厂商名字
+    [dic setSafeObject:self.vendorBtn.titleLabel.text forKey:@"VendorName"];
     
     [self showLoading];
     [GDService requestWithFunctionName:@"set_state_last" pramaDic:dic requestMethod:@"POST" completion:^(id reObj) {
@@ -537,30 +712,44 @@
     alert.tag = 300;
     [alert show];
 }
+-(void)showResAlert:(NSString*)res{
+    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:res message:nil delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+    alert.tag = 300;
+    [alert show];
 
+}
 - (void)cancelBtnClicked {
     [self.navigationController popViewControllerAnimated:YES];
 }
 - (IBAction)topBarBtnClicked:(id)sender {
     UIButton *selBtn = (UIButton*)sender;
+    if (selBtn.tag==2) {
+        if (![self.detailDic[@"NetSort_one"] isEqualToString:@"101010401"]) {
+            [self warnNotice:@"网元不是基站，没有预处理信息"];
+            return;
+        }
+    }
     self.topbarBaseInfoBtn.selected = NO;
     self.topbarDetailInfoBtn.selected = NO;
     self.topBarHistoryBtn.selected = NO;
     selBtn.selected = YES;
     switch (selBtn.tag) {
         case 1:{
-            //[self updateBaseInfoView];
+            self.mainScrollView.hidden=NO;
+            self.followScrollView.hidden=YES;
             [self updateDisplayView];
         }
             break;
         case 2:
-            //[self updateDetailInfoView];
-            [self updateDisplayView];
+            self.mainScrollView.hidden=NO;
+            self.followScrollView.hidden=YES;
+            [self updatePreHandleView];
             break;
-        case 3:
-            //
-            [self updateDisplayView];
-            //[self updateDealView];
+        case 3: {
+            self.mainScrollView.hidden=YES;
+            self.followScrollView.hidden=NO;
+
+        }
             break;
         default:
             break;
@@ -572,19 +761,32 @@
     self.bottomDetailBtn.selected = NO;
     self.bottomProgressRecordBtn.selected = NO;
     
-    
     switch (selBtn.tag) {
         case 1:{
             //
             //self.mainTextView.text = @"第一个TAB内容";
-            [self.view sendSubviewToBack:self.formFlowView];
+            self.mainScrollView.hidden=NO;
+            self.formFlowView.hidden=YES;
+            self.topbar.hidden=NO;
+            if (self.topBarHistoryBtn.selected==NO) {
+                self.followScrollView.hidden=YES;
+            }else{
+                self.followScrollView.hidden=NO;
+            }
+//            [self.view sendSubviewToBack:self.formFlowView];
         }
             break;
         case 2: {//240 248 164
             //
             //self.mainTextView.text = @"第二个TAB内容";
-            [self.view bringSubviewToFront:self.formFlowView];
+            self.topbar.hidden=YES;
+            self.mainScrollView.hidden=YES;
+            self.formFlowView.hidden=NO;
+            self.followScrollView.hidden=YES;
+            //            [self.view bringSubviewToFront:self.formFlowView];
         }
+            break;
+            default:
             break;
     }
     selBtn.selected = YES;
@@ -614,6 +816,10 @@
 - (void)warnNoData:(NSString*)message {
     UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"没有数据" message:message delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
     [alert show];
+}
+
+- (void)warnNotice:(NSString *)notice{
+    [[[UIAlertView alloc]initWithTitle:@"提示" message:notice delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
 }
 - (void)dealMenuClicked:(id)sender {
     [self.methodTV resignFirstResponder];
@@ -682,6 +888,29 @@
             }];
             break;
         }
+        case 7:{//设备名称
+            [self getEquipMapBlock:^{
+                [self showPicker:sender];
+            }];
+        }
+            break;
+        case 8:{//设备厂家名称
+            NSString *equiltName=self.equiltBtn.titleLabel.text;
+            if ([equiltName isEqualToString: @""]||equiltName==nil) {
+                [self warnNoData:@"请选择设备名称"];
+            }else{
+                if (self.vendorArr==nil) {
+                    self.vendorArr=[[NSMutableArray alloc] init];
+                }
+                for (NSDictionary *dic in self.vendorHubResultArr) {
+                    if ([equiltName isEqualToString:dic[@"EquipClassName"]]) {
+                        [self.vendorArr addObject:dic[@"EquipVendorName"]];
+                    }
+                }
+                [self showPicker:sender];
+            }
+        }
+            break;
         default:
             break;
     }
@@ -689,27 +918,43 @@
 - (void)showDateSel:(id)sender {
     UIButton *btn = (UIButton*)sender;
     
-    UIActionSheet *actionSheet = [[UIActionSheet alloc]initWithTitle:@"\n\n\n\n\n\n\n\n\n\n\n\n\n\n" delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"确定",nil];
-    actionSheet.tag = btn.tag;
-    self.datePicker = [[RBCustomDatePickerView alloc] initWithFrame:CGRectMake(0, 0, 320, 240)];//[[UIDatePicker alloc]initWithFrame:CGRectZero];
-    //_datePicker.datePickerMode = UIDatePickerModeDate;
-    _datePicker.tag = btn.tag;
-    [actionSheet addSubview:_datePicker];
+    self.viewPoper=[[PhoneViewPoper alloc] init];
+    self.viewPoper.pickerView.tag=btn.tag;
+    self.datePicker=[[RBCustomDatePickerView alloc] initWithFrame:CGRectMake(0, 40, 320, 200)];//
+    self.datePicker.backgroundColor=[UIColor whiteColor];
+    [self.viewPoper.popView addSubview:self.datePicker];
+    self.viewPoper.delegate=self;
+    [self.viewPoper showPopView];
+
     
-    [actionSheet showInView:SharedDelegate.window];
+//    UIActionSheet *actionSheet = [[UIActionSheet alloc]initWithTitle:@"\n\n\n\n\n\n\n\n\n\n\n\n\n\n" delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"确定",nil];
+//    actionSheet.tag = btn.tag;
+//    self.datePicker = [[RBCustomDatePickerView alloc] initWithFrame:CGRectMake(0, 0, 320, 240)];//[[UIDatePicker alloc]initWithFrame:CGRectZero];
+//    //_datePicker.datePickerMode = UIDatePickerModeDate;
+//    _datePicker.tag = btn.tag;
+//    [actionSheet addSubview:_datePicker];
+//    
+//    [actionSheet showInView:SharedDelegate.window];
 }
 - (void)showPicker:(id)sender {
     UIButton *btn = (UIButton*)sender;
-    UIActionSheet *actionSheet = [[UIActionSheet alloc]initWithTitle:@"\n\n\n\n\n\n\n\n\n\n\n\n" delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"确定",nil];
+
+    self.viewPoper=[[PhoneViewPoper alloc] init];
+    self.viewPoper.pickerView.tag=btn.tag;
+    self.viewPoper.delegate=self;
+    [self.viewPoper showPopView];
     
-    self.picker = [[UIPickerView alloc]initWithFrame:CGRectZero];
-    _picker.tag = btn.tag;
-    _picker.showsSelectionIndicator = YES;
-    self.picker.delegate = self;
-    self.picker.dataSource = self;
-    [actionSheet addSubview:_picker];
-    actionSheet.tag = btn.tag;
-    [actionSheet showInView:SharedDelegate.window];
+//    UIButton *btn = (UIButton*)sender;
+//    UIActionSheet *actionSheet = [[UIActionSheet alloc]initWithTitle:@"\n\n\n\n\n\n\n\n\n\n\n\n" delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"确定",nil];
+//    
+//    self.picker = [[UIPickerView alloc]initWithFrame:CGRectZero];
+//    _picker.tag = btn.tag;
+//    _picker.showsSelectionIndicator = YES;
+//    self.picker.delegate = self;
+//    self.picker.dataSource = self;
+//    [actionSheet addSubview:_picker];
+//    actionSheet.tag = btn.tag;
+//    [actionSheet showInView:SharedDelegate.window];
 }
 
 - (void)toPhoto {
@@ -782,6 +1027,26 @@
     [self rejectTheForm];
 }
 
+-(void)gaojingheshiClicked:(id)sender{
+    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"是否申请告警核实" message:nil delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"申请",nil];
+    alert.tag = 400;
+    [alert show];
+
+}
+
+-(void)newFuncClick:(UIButton*)btn{
+    NSString *txt=nil;
+    if (btn.tag==900) {//阶段回复
+        txt=@"阶段回复";
+    }else if (btn.tag==901){//申请延期
+        txt=@"申请延期";
+    }
+    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:txt message:nil delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"确定",nil];
+    alert.alertViewStyle=UIAlertViewStylePlainTextInput;
+    alert.tag = btn.tag;
+    [alert show];
+}
+
 - (void)closeKeyboard {
     //[self.handlerTF resignFirstResponder];
     [self.rejectTF resignFirstResponder];
@@ -789,6 +1054,13 @@
     //[self.methodTV resignFirstResponder];
 }
 
+
+-(void)yuyingBtn:(id)sender{
+    [[FlySpeech sharedInstance] startRecognizer:self.view comletion:^(NSString *yuyingresult) {
+        self.reasonTF.text=yuyingresult;
+        [[FlySpeech sharedInstance] quitRecgnizer];
+    }];
+}
 #pragma mark - imagePickerImage -
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingImage:(UIImage *)image editingInfo:(NSDictionary *)editingInfo {
     self.selPhotoImage = image;
@@ -800,8 +1072,28 @@
     [self dismissViewControllerAnimated:YES completion:^{}];
 }
 
-#pragma mark - update UI -
-- (void)updateFormView {
+#pragma mark 追单
+-(void)updateFollowView{
+    for (UIView* aView in self.followScrollView.subviews) {
+        [aView removeFromSuperview];
+    }
+    NSString*text=self.detailDic[@"packinfo"];
+    CGSize size = [text sizeWithFont:[UIFont systemFontOfSize:16.0] constrainedToSize:CGSizeMake(300, 2000)];
+
+    UILabel *lab=[[UILabel alloc] initWithFrame:CGRectMake(10, 10, 300, size.height)];
+    lab.backgroundColor=[UIColor clearColor];
+    lab.font=[UIFont systemFontOfSize:16];
+//    lab.translatesAutoresizingMaskIntoConstraints=NO;
+    lab.text=text;
+    lab.numberOfLines=0;
+    [self.followScrollView addSubview:lab];
+//    self.followScrollView.translatesAutoresizingMaskIntoConstraints=NO;
+//    [self.followScrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-10-[lab]-(>=0)-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(lab)]];
+//    
+//    [self.followScrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-10-[lab]-10-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(lab)]];
+}
+#pragma mark - update 工作流程图
+- (void)updateFormView {//更新流程视图
     for (UIView* aView in self.formFlowView.subviews) {
         [aView removeFromSuperview];
     }
@@ -843,13 +1135,188 @@
     }
     self.formFlowView.contentSize = CGSizeMake(320, yPositon);
 }
+#pragma mark 更新详情图优化
+
+//预处理界面
+-(void)updatePreHandleView{
+    for (UIView* aView in self.mainScrollView.subviews) {
+        [aView removeFromSuperview];
+    }
+    self.searchview=[[UIView alloc] initWithFrame:CGRectMake(0, 44, self.view.frame.size.width, 100)];
+    self.searchview.backgroundColor = [UIColor colorWithRed:244.0/255 green:244.0/255 blue:244.0/255 alpha:1.0];
+    [self.view addSubview:self.searchview];
+    
+    
+    UILabel*theStaticLabel = [[UILabel alloc]initWithFrame:CGRectMake(10, 10, 80, 20)];
+    theStaticLabel.font = [UIFont systemFontOfSize:16.0];
+    theStaticLabel.backgroundColor = [UIColor clearColor];
+    theStaticLabel.textColor=[UIColor blackColor];
+    theStaticLabel.text = @"基站名称：";
+    [self.searchview addSubview:theStaticLabel];
+    
+    UIImageView *bg = [[UIImageView alloc]initWithFrame:CGRectMake(100, 10, self.view.frame.size.width/2, 30)];
+    bg.image = [[UIImage imageNamed:@"dealInputFrame"] resizableImageWithCapInsets:UIEdgeInsetsMake(5, 0, 5, 0)];
+    [self.searchview addSubview:bg];
+    
+    self.btsTxtV = [[UITextView alloc]initWithFrame:bg.frame];
+    self.btsTxtV.tag = 10086;
+    self.btsTxtV.delegate = self;
+    self.btsTxtV.font = [UIFont systemFontOfSize:14.0];
+    self.btsTxtV.backgroundColor = [UIColor clearColor];
+    self.btsTxtV.text=self.btsName;
+    //self.reasonTF.clearButtonMode = UITextFieldViewModeWhileEditing;
+    [self.searchview addSubview:self.btsTxtV];
+
+    UIButton *searchBtn=[UIButton buttonWithType:UIButtonTypeCustom];
+    searchBtn.frame=CGRectMake(100+self.view.frame.size.width/2, 10, 30, 30);
+    [searchBtn addTarget:self action:@selector(searchbts:) forControlEvents:UIControlEventTouchUpInside];
+    searchBtn.tag=9;
+    [searchBtn setImage:[UIImage imageNamed:@"searchviewbtn"] forState:UIControlStateNormal];
+    [self.searchview addSubview:searchBtn];
+    
+    UIButton *queryBtn=[UIButton buttonWithType:UIButtonTypeCustom];
+    queryBtn.frame=CGRectMake(100+self.view.frame.size.width/2, 10, 80, 30);
+    queryBtn.center=CGPointMake(160, 65);
+    [queryBtn addTarget:self action:@selector(queryAction:) forControlEvents:UIControlEventTouchUpInside];
+    [queryBtn setBackgroundImage:[UIImage imageNamed:@"gaojingheshi"] forState:UIControlStateNormal];
+    [queryBtn setTitle:@"查询" forState:UIControlStateNormal];
+    [self.searchview addSubview:queryBtn];
+    [self queryAction:nil];
+}
+
+-(void)searchbts:(id)sender{
+    [self.btsTxtV resignFirstResponder];
+
+    if (self.btsTxtV.text==nil||[self.btsTxtV.text isEqualToString:@""]) {
+        [[[UIAlertView alloc] initWithTitle:@"查询条件为空" message:nil delegate:nil cancelButtonTitle:@"ok" otherButtonTitles:nil] show];
+        return;
+    }
+    [self showLoading];
+    NSMutableDictionary *prama=@{@"ServiceName":@"get_bts_name",@"Function":@"mq_bts"}.mutableCopy;
+    prama[@"BtsName"]=self.btsTxtV.text;
+    
+    [GDService requestWithFunctionName:@"mq_bts" pramaDic:prama requestMethod:@"POST" completion:^(id reObj) {
+        [self hideLoading];
+        if ([reObj isKindOfClass:[NSArray class]]&&[reObj count]) {
+            self.btsArr=(NSMutableArray*)reObj;
+            [self showPicker:sender];
+        }else{
+            [self warnNoData:nil];
+        }
+        
+    }];
+}
+
+-(void)queryAction:(id)sender{
+    NSMutableDictionary *prama=[NSMutableDictionary dictionary];
+    prama[@"UserId"]=SharedDelegate.loginedUserName;
+    if (sender==nil&&self.btsName!=nil&&![self.btsName isEqualToString:@""]) {
+        prama[@"BtsName"]=self.btsName;
+    }else{
+        if (self.btsTxtV.text==nil||[self.btsTxtV.text isEqualToString:@""]) {
+            [[[UIAlertView alloc] initWithTitle:@"查询条件为空" message:nil delegate:nil cancelButtonTitle:@"ok" otherButtonTitles:nil] show];
+            return;
+        }
+        prama[@"BtsName"]=self.btsTxtV.text;
+    }
+    [self showLoading];
+    [GDServiceV2 requestFunc:@"wo_get_form_sheetinfo" WithParam:prama withCompletBlcok:^(id reObj, NSError *error) {
+        [self hideLoading];
+        if (error==nil&&[reObj isKindOfClass:[NSDictionary class]]) {
+            for (UIView* aView in self.mainScrollView.subviews) {
+                [aView removeFromSuperview];
+            }
+
+            NSDictionary *result=(NSDictionary*)reObj;
+            GDTextView*textview=[[GDTextView alloc] initWithFrame: CGRectMake(0,0, self.view.frame.size.width, self.mainScrollView.contentSize.height)];
+
+            textview.backgroundColor=[UIColor clearColor];
+            textview.scrollEnabled=NO;
+            textview.editable=NO;
+            textview.font=[UIFont systemFontOfSize:14];
+            NSString *txt=[result[@"Result"] decodeBase64];
+
+            [self.mainScrollView addSubview:textview];
+            CGSize size=[txt sizeWithFont:[UIFont systemFontOfSize:18] constrainedToSize:CGSizeMake(self.view.frame.size.width-20, 800)];
+            self.mainScrollView.contentSize=CGSizeMake(self.view.frame.size.width, size.height+100);
+            textview.frame=CGRectMake(10,100, self.view.frame.size.width-20, self.mainScrollView.contentSize.height);
+            textview.contentSize=CGSizeMake(self.view.frame.size.width-20, self.mainScrollView.contentSize.height);
+
+            textview.contentInset=UIEdgeInsetsMake(10, 10, 10, 10);
+            textview.text = txt;
+
+        }
+    }];
+}
 - (void)updateDisplayView {
     for (UIView* aView in self.mainScrollView.subviews) {
         [aView removeFromSuperview];
     }
-    int yPositon = 5;
-    int rightXposition = 90;
+    [self.searchview removeFromSuperview];
     
+    float yPositon = 5;
+    float rightXposition = 0.25*self.view.frame.size.width;
+    if (self.detailDic==nil||self.detailDic.count==0) {
+        return;
+    }
+    NSArray *arr=self.detailDic[@"Result"];
+    BOOL gaojin=NO;
+    for (int i=0; i<arr.count; i++) {
+        NSDictionary *dic=arr[i];
+        NSString *left=dic[@"Key"];
+        NSString *right=[dic[@"Value"] decodeBase64];
+        NSLog(@"---------\n   %@",right);
+        
+        if ([left isEqualToString:@"清除时间"]&&self.formState == FormState_doing&&(self.cleartime==nil||[self.cleartime isEqualToString:@""])) {
+            gaojin=YES;
+            continue;
+        }else{
+            gaojin=NO;
+        }
+
+        
+        CGSize size=[right sizeWithFont:[UIFont systemFontOfSize:16] constrainedToSize:CGSizeMake(0.75*self.view.frame.size.width-10, 5000)];
+
+        if (size.height<30) {
+            size=CGSizeMake(200, 25);
+        }
+        
+        float newHigh=size.height;
+        if (newHigh>25) {
+            newHigh+=20;
+        }
+        GDTextView*t2=[[GDTextView alloc] initWithFrame:CGRectMake(0.25*self.view.frame.size.width+5, yPositon, 0.75*self.view.frame.size.width, newHigh)]
+        ;
+        t2.contentInset=UIEdgeInsetsMake(-7, 0, 0, 0);
+        t2.font=[UIFont systemFontOfSize:16];
+        t2.alwaysBounceVertical=YES;
+        t2.backgroundColor=[UIColor clearColor];
+        t2.scrollEnabled=NO;
+        t2.text=right;
+        t2.editable=NO;
+        
+        GDTextView *t=[[GDTextView alloc] initWithFrame:CGRectMake(5, yPositon, 0.25*self.view.frame.size.width, newHigh)];
+        t.contentInset=UIEdgeInsetsMake(-7, 0, 0, 0);
+        t.alwaysBounceVertical=YES;
+        t.font=[UIFont systemFontOfSize:16];
+        t.backgroundColor=[UIColor clearColor];
+        t.scrollEnabled=NO;
+        t.text=[NSString stringWithFormat:@"%@:",left];
+        t.editable=NO;
+        if (gaojin==NO) {
+            [self.mainScrollView addSubview:t];
+            [self.mainScrollView addSubview:t2];
+        }else{
+            
+        }
+        yPositon+=newHigh;
+
+    }
+    yPositon+=5;
+    [self infoDealwithY:yPositon rightXposition:rightXposition checkalert:gaojin];
+    
+ /*//   yPositon=fHeight;
+   老代码
     UILabel *theStaticLabel = [[UILabel alloc]initWithFrame:CGRectMake(10, yPositon, 80, 20)];
     theStaticLabel.font = [UIFont systemFontOfSize:16.0];
     theStaticLabel.backgroundColor = [UIColor clearColor];
@@ -912,7 +1379,7 @@
         [self.mainScrollView addSubview:theRightLabel];
     }
     //self.mainScrollView.contentSize = CGSizeMake(320, yPositon);
-    
+  
     rightXposition -= 28;
     if (self.topbarBaseInfoBtn.selected && self.formType == FormType_todo) {  // 基本信息特殊处理
         
@@ -952,7 +1419,8 @@
             [rejectBtn addTarget:self action:@selector(rejectBtnClicked) forControlEvents:UIControlEventTouchUpInside];
             [self.mainScrollView addSubview:rejectBtn];
         }
-    }else if (self.formType == FormType_copy && self.topbarBaseInfoBtn.selected) {
+    }
+    else if (self.formType == FormType_copy && self.topbarBaseInfoBtn.selected) {
         
         UIButton *cancelBtn = [[UIButton alloc]initWithFrame:CGRectMake(rightXposition+84, yPositon, 79, 26)];
         [cancelBtn setTitle:@"取消" forState:UIControlStateNormal];
@@ -975,8 +1443,81 @@
     }
     yPositon += 50;
     self.mainScrollView.contentSize = CGSizeMake(320, yPositon);
+  */
 }
-- (void)updateDealViewWithYposition:(int)y {
+     
+-(void)infoDealwithY:(float)yPositon rightXposition:(float)rightXposition checkalert:(BOOL)b{
+     if (self.topbarBaseInfoBtn.selected && self.formType == FormType_todo) {  // 基本信息特殊处理
+         
+         if (self.formState == FormState_doing) {
+             [self updateDealViewWithYposition:yPositon checkAlert:b];
+             return;
+         }
+         else if (self.formState == FormState_todo) {
+             // 操作按钮
+             if (self.isLeader) {  // 班组长才有权限
+                 // 指定
+                 UIButton *appointBtn = [[UIButton alloc]initWithFrame:CGRectMake(rightXposition, yPositon, 79, 26)];
+                 [appointBtn setTitle:@"指定" forState:UIControlStateNormal];
+                 appointBtn.backgroundColor = [UIColor redColor];
+                 appointBtn.titleLabel.font = [UIFont systemFontOfSize:16.0];
+                 [appointBtn setImage:[UIImage imageNamed:@"appoint"] forState:UIControlStateNormal];
+                 [appointBtn setImage:[UIImage imageNamed:@"appoint_sel"] forState:UIControlStateHighlighted];
+                 [appointBtn addTarget:self action:@selector(appointBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
+                 [self.mainScrollView addSubview:appointBtn];
+             }
+             // 受理
+             UIButton *acceptBtn = [[UIButton alloc]initWithFrame:CGRectMake(rightXposition+84, yPositon, 79, 26)];
+             [acceptBtn setTitle:@"受理" forState:UIControlStateNormal];
+             [acceptBtn setImage:[UIImage imageNamed:@"accept"] forState:UIControlStateNormal];
+             [acceptBtn setImage:[UIImage imageNamed:@"accept_sel"] forState:UIControlStateHighlighted];
+             acceptBtn.backgroundColor = [UIColor redColor];
+             acceptBtn.titleLabel.font = [UIFont systemFontOfSize:16.0];
+             [acceptBtn addTarget:self action:@selector(acceptBtnClicked) forControlEvents:UIControlEventTouchUpInside];
+             [self.mainScrollView addSubview:acceptBtn];
+             
+             // 驳回
+             UIButton *rejectBtn = [[UIButton alloc]initWithFrame:CGRectMake(rightXposition+84+84, yPositon, 79, 26)];
+             [rejectBtn setTitle:@"驳回" forState:UIControlStateNormal];
+             [rejectBtn setImage:[UIImage imageNamed:@"reject"] forState:UIControlStateNormal];
+             [rejectBtn setImage:[UIImage imageNamed:@"reject_sel"] forState:UIControlStateHighlighted];
+             rejectBtn.backgroundColor = [UIColor redColor];
+             rejectBtn.titleLabel.font = [UIFont systemFontOfSize:16.0];
+             [rejectBtn addTarget:self action:@selector(rejectBtnClicked) forControlEvents:UIControlEventTouchUpInside];
+             [self.mainScrollView addSubview:rejectBtn];
+             //无权限则隐藏
+             if (!SharedDelegate.reject) {
+                 rejectBtn.hidden=YES;
+             }
+         }
+     }
+     else if (self.formType == FormType_copy && self.topbarBaseInfoBtn.selected) {
+         
+         UIButton *cancelBtn = [[UIButton alloc]initWithFrame:CGRectMake(rightXposition+84, yPositon, 79, 26)];
+         [cancelBtn setTitle:@"取消" forState:UIControlStateNormal];
+         [cancelBtn setBackgroundImage:[UIImage imageNamed:@"operBtn"] forState:UIControlStateNormal];
+         [cancelBtn setBackgroundImage:[UIImage imageNamed:@"operBtn"] forState:UIControlStateHighlighted];
+         [cancelBtn addTarget:self action:@selector(cancelBtnClicked) forControlEvents:UIControlEventTouchUpInside];
+         cancelBtn.backgroundColor = [UIColor clearColor];
+         [self.mainScrollView addSubview:cancelBtn];
+         // 已阅
+         UIButton *readFormBtn = [[UIButton alloc]initWithFrame:CGRectMake(rightXposition+84+84, yPositon, 79, 26)];
+         [readFormBtn setTitle:@"已阅" forState:UIControlStateNormal];
+         [readFormBtn setBackgroundImage:[UIImage imageNamed:@"operBtn"] forState:UIControlStateNormal];
+         [readFormBtn setBackgroundImage:[UIImage imageNamed:@"operBtn_sel"] forState:UIControlStateHighlighted];
+         readFormBtn.backgroundColor = [UIColor redColor];
+         readFormBtn.titleLabel.font = [UIFont systemFontOfSize:16.0];
+         [readFormBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+         [readFormBtn addTarget:self action:@selector(readTheForm) forControlEvents:UIControlEventTouchUpInside];
+         [self.mainScrollView addSubview:readFormBtn];
+         
+     }
+     yPositon += 50;
+     self.mainScrollView.contentSize = CGSizeMake(320, yPositon);
+     
+}
+//已受理的时候
+- (void)updateDealViewWithYposition:(int)y checkAlert:(BOOL)gaojin{
 //    for (UIView* aView in self.mainScrollView.subviews) {
 //        [aView removeFromSuperview];
 //    }
@@ -985,7 +1526,26 @@
     
     UILabel *theStaticLabel;
     UIButton *menu;
-    
+    if (gaojin) {
+        
+        theStaticLabel = [[UILabel alloc]initWithFrame:CGRectMake(10, yPositon, 80, 20)];
+        theStaticLabel.font = [UIFont systemFontOfSize:16.0];
+        theStaticLabel.backgroundColor = [UIColor clearColor];
+        theStaticLabel.text = @"清除时间：";
+        [self.mainScrollView addSubview:theStaticLabel];
+
+        menu=[UIButton buttonWithType:UIButtonTypeCustom];
+        menu.frame=CGRectMake(rightXposition, yPositon, 180, 25);
+        [menu setBackgroundImage:[UIImage imageNamed:@"gaojingheshi"] forState:UIControlStateNormal];
+        [menu setBackgroundImage:[UIImage imageNamed:@"gaojingheshi"] forState:UIControlStateHighlighted];
+        menu.titleLabel.font=[UIFont systemFontOfSize:16];
+        [menu setTitle:@"申请告警核实" forState:UIControlStateNormal];
+        [menu addTarget:self action:@selector(gaojingheshiClicked:) forControlEvents:UIControlEventTouchUpInside];
+        [self.mainScrollView addSubview:menu];
+        yPositon += 30;
+
+    }
+
     // 超级第一行。蛋碎。只在 alarmID为WL-001-00-800003时出现
     if ([self.alarmId isEqualToString:@"WL-001-00-800003"]) {
         theStaticLabel = [[UILabel alloc]initWithFrame:CGRectMake(10, yPositon, 80, 20)];
@@ -1138,13 +1698,6 @@
     theStaticLabel.backgroundColor = [UIColor clearColor];
     theStaticLabel.text = @"故障原因：";
     
-//    self.reasonBtn = [[UIButton alloc]initWithFrame:CGRectMake(rightXposition, yPositon-2, 184, 50)];
-//    [self.reasonBtn setBackgroundImage:[[UIImage imageNamed:@"dealInputFrame"] resizableImageWithCapInsets:UIEdgeInsetsMake(5, 0, 5, 0)] forState:UIControlStateNormal];
-//    //[self.reasonBtn addTarget:self action:@selector(dealMenuClicked:) forControlEvents:UIControlEventTouchUpInside];
-//    self.reasonBtn.tag = 3;
-//    [self.reasonBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-//    [self.mainScrollView addSubview:self.reasonBtn];
-    
     
     UIImageView *bg = [[UIImageView alloc]initWithFrame:CGRectMake(rightXposition, yPositon-2, 184, 50)];
     bg.image = [[UIImage imageNamed:@"dealInputFrame"] resizableImageWithCapInsets:UIEdgeInsetsMake(5, 0, 5, 0)];
@@ -1160,13 +1713,12 @@
     //self.reasonTF.clearButtonMode = UITextFieldViewModeWhileEditing;
     [self.mainScrollView addSubview:_reasonTF];
     
-    //self.reasonTF.text = [self.selReasonThreeDic objectForKey:@"Value"];
-    
-//    menu = [[UIButton alloc]initWithFrame:CGRectMake(rightXposition+184, yPositon-2, 30, 25)];
-//    [menu setBackgroundImage:[UIImage imageNamed:@"popMenuBtn"] forState:UIControlStateNormal];
-//    [menu addTarget:self action:@selector(dealMenuClicked:) forControlEvents:UIControlEventTouchUpInside];
-//    menu.tag = 3;
-//    [self.mainScrollView addSubview:menu];
+    self.yuyingBtn = [[UIButton alloc]initWithFrame:CGRectMake(rightXposition+185, yPositon-2, 12, 22)];
+    [self.yuyingBtn setBackgroundImage:[UIImage imageNamed:@"yuyin"]  forState:UIControlStateNormal];
+    [self.yuyingBtn addTarget:self action:@selector(yuyingBtn:) forControlEvents:UIControlEventTouchUpInside];
+    self.reasonBtn.tag = 3;
+    [self.yuyingBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [self.mainScrollView addSubview:self.yuyingBtn];
     
     yPositon += 55;
     [self.mainScrollView addSubview:theStaticLabel];
@@ -1187,13 +1739,15 @@
     [self.handleTimeBtn addTarget:self action:@selector(dealMenuClicked:) forControlEvents:UIControlEventTouchUpInside];
     [self.mainScrollView addSubview:self.handleTimeBtn];
     
-    [self.handleTimeBtn setTitle:self.selHandleTime forState:UIControlStateNormal];
-    
-    NSDateFormatter *dateFor = [[NSDateFormatter alloc]init];
-    NSString * dateStr;
-    [dateFor setDateFormat:@"yyyy-MM-dd hh:mm:ss"];
-    dateStr = [dateFor stringFromDate:[NSDate date]];
-    [self.handleTimeBtn setTitle:dateStr forState:UIControlStateNormal];
+    if (self.cleartime!=nil&&![self.cleartime isEqualToString:@""]) {
+        [self.handleTimeBtn setTitle:self.cleartime forState:UIControlStateNormal];
+        self.selHandleTime=self.cleartime;
+    }
+//    NSDateFormatter *dateFor = [[NSDateFormatter alloc]init];
+//    NSString * dateStr;
+//    [dateFor setDateFormat:@"yyyy-MM-dd hh:mm:ss"];
+//    dateStr = [dateFor stringFromDate:[NSDate date]];
+//    [self.handleTimeBtn setTitle:dateStr forState:UIControlStateNormal];
     
     menu = [[UIButton alloc]initWithFrame:CGRectMake(rightXposition+184, yPositon-2, 30, 25)];
     [menu setBackgroundImage:[UIImage imageNamed:@"popMenuBtn"] forState:UIControlStateNormal];
@@ -1230,17 +1784,82 @@
     self.handlerTF.text = self.handlerName;
     [self.mainScrollView addSubview:self.handlerTF];
     
-    yPositon += 60;
+    yPositon += 30;
     [self.mainScrollView addSubview:theStaticLabel];
-    
+    //动环类，显示设备号
+    if (self.donghuan) {
+        theStaticLabel = [[UILabel alloc]initWithFrame:CGRectMake(10, yPositon, 80, 20)];
+        theStaticLabel.font = [UIFont systemFontOfSize:16.0];
+        theStaticLabel.backgroundColor = [UIColor clearColor];
+        theStaticLabel.text = @"设备名称：";
+        
+        self.equiltBtn = [[UIButton alloc]initWithFrame:CGRectMake(rightXposition, yPositon-2, 184, 25)];
+        [self.equiltBtn setBackgroundImage:[UIImage imageNamed:@"equitFrame"] forState:UIControlStateNormal];
+        [self.equiltBtn addTarget:self action:@selector(dealMenuClicked:) forControlEvents:UIControlEventTouchUpInside];
+        self.equiltBtn.tag = 7;
+        self.equiltBtn.titleLabel.font = [UIFont systemFontOfSize:14.0];
+        [self.equiltBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+        [self.mainScrollView addSubview:self.equiltBtn];
+        
+        [self.equiltBtn setTitle:[self.selReasonTwoDic objectForKey:@"S1"] forState:UIControlStateNormal];
+        
+        [self.mainScrollView addSubview:theStaticLabel];
+        
+        yPositon += 30;
+        
+        
+        theStaticLabel = [[UILabel alloc]initWithFrame:CGRectMake(10, yPositon, 80, 20)];
+        theStaticLabel.font = [UIFont systemFontOfSize:16.0];
+        theStaticLabel.backgroundColor = [UIColor clearColor];
+        theStaticLabel.text = @"设备厂家：";
+        
+        self.vendorBtn = [[UIButton alloc]initWithFrame:CGRectMake(rightXposition, yPositon-2, 184, 25)];
+        [self.vendorBtn setBackgroundImage:[UIImage imageNamed:@"equitFrame"] forState:UIControlStateNormal];
+        [self.vendorBtn addTarget:self action:@selector(dealMenuClicked:) forControlEvents:UIControlEventTouchUpInside];
+        self.vendorBtn.tag = 8;
+        self.vendorBtn.titleLabel.font = [UIFont systemFontOfSize:14.0];
+        [self.vendorBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+        [self.mainScrollView addSubview:self.vendorBtn];
+        
+        [self.vendorBtn setTitle:[self.selReasonTwoDic objectForKey:@"S1"] forState:UIControlStateNormal];
+        yPositon+=30;
+
+        [self.mainScrollView addSubview:theStaticLabel];
+    }
+
     
     rightXposition = 23+73;
-    // 操作按钮
-    right = [[UIButton alloc]initWithFrame:CGRectMake(rightXposition, yPositon, 63, 27)];
-    [right setBackgroundImage:[UIImage imageNamed:@"handle"] forState:UIControlStateNormal];
-    [right setBackgroundImage:[UIImage imageNamed:@"handle_sel"] forState:UIControlStateHighlighted];
+    // 回单
+    right = [[UIButton alloc]initWithFrame:CGRectMake(self.view.frame.size.width/6, yPositon, self.view.frame.size.width*2/3, 27)];
+    [right setBackgroundImage:[UIImage imageNamed:@"gaojingheshi"] forState:UIControlStateNormal];
+//    [right setBackgroundImage:[UIImage imageNamed:@"handle_sel"] forState:UIControlStateHighlighted];
+    [right setTitle:@"回单" forState:UIControlStateNormal];
+    right.titleLabel.font=[UIFont systemFontOfSize:16];
     [right addTarget:self action:@selector(submitBackBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
     [self.mainScrollView addSubview:right];
+    
+    yPositon+=32;
+    //阶段回复
+    right = [[UIButton alloc]initWithFrame:CGRectMake(self.view.frame.size.width/9, yPositon, self.view.frame.size.width/3, 27)];
+    [right setBackgroundImage:[UIImage imageNamed:@"gaojingheshi"] forState:UIControlStateNormal];
+    //    [right setBackgroundImage:[UIImage imageNamed:@"handle_sel"] forState:UIControlStateHighlighted];
+    [right setTitle:@"阶段回复" forState:UIControlStateNormal];
+    right.titleLabel.font=[UIFont systemFontOfSize:16];
+    right.tag=900;
+    [right addTarget:self action:@selector(newFuncClick:) forControlEvents:UIControlEventTouchUpInside];
+    [self.mainScrollView addSubview:right];
+    
+    //阶段回复
+    right = [[UIButton alloc]initWithFrame:CGRectMake(self.view.frame.size.width*5/9, yPositon, self.view.frame.size.width/3, 27)];
+    [right setBackgroundImage:[UIImage imageNamed:@"gaojingheshi"] forState:UIControlStateNormal];
+    //    [right setBackgroundImage:[UIImage imageNamed:@"handle_sel"] forState:UIControlStateHighlighted];
+    [right setTitle:@"申请延期" forState:UIControlStateNormal];
+    right.tag=901;
+    right.titleLabel.font=[UIFont systemFontOfSize:16];
+    [right addTarget:self action:@selector(newFuncClick:) forControlEvents:UIControlEventTouchUpInside];
+    [self.mainScrollView addSubview:right];
+    
+
     
     //yPositon += 32;
     rightXposition += 73;
@@ -1252,26 +1871,27 @@
 //    [self.mainScrollView addSubview:right];
 //    
 //    rightXposition += 73;
-    
-    right = [[UIButton alloc]initWithFrame:CGRectMake(rightXposition, yPositon, 63, 27)];
-    [right setBackgroundImage:[UIImage imageNamed:@"copyBtn"] forState:UIControlStateNormal];
-    [right setBackgroundImage:[UIImage imageNamed:@"copyBtn_sel"] forState:UIControlStateHighlighted];
-    [right addTarget:self action:@selector(copyBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
-    [self.mainScrollView addSubview:right];
+    //抄送
+//    right = [[UIButton alloc]initWithFrame:CGRectMake(rightXposition, yPositon, 63, 27)];
+//    [right setBackgroundImage:[UIImage imageNamed:@"copyBtn"] forState:UIControlStateNormal];
+//    [right setBackgroundImage:[UIImage imageNamed:@"copyBtn_sel"] forState:UIControlStateHighlighted];
+//    [right addTarget:self action:@selector(copyBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
+//    [self.mainScrollView addSubview:right];
     
     //yPositon += 32;
-    rightXposition += 73;
-    
-    right = [[UIButton alloc]initWithFrame:CGRectMake(rightXposition, yPositon, 63, 27)];
-    [right setBackgroundImage:[UIImage imageNamed:@"takePhoto"] forState:UIControlStateNormal];
-    [right setBackgroundImage:[UIImage imageNamed:@"takePhoto_sel"] forState:UIControlStateHighlighted];
-    [right addTarget:self action:@selector(toPhoto) forControlEvents:UIControlEventTouchUpInside];
-    [self.mainScrollView addSubview:right];
+//    rightXposition += 73;
+//    //拍照
+//    right = [[UIButton alloc]initWithFrame:CGRectMake(rightXposition, yPositon, 63, 27)];
+//    [right setBackgroundImage:[UIImage imageNamed:@"takePhoto"] forState:UIControlStateNormal];
+//    [right setBackgroundImage:[UIImage imageNamed:@"takePhoto_sel"] forState:UIControlStateHighlighted];
+//    [right addTarget:self action:@selector(toPhoto) forControlEvents:UIControlEventTouchUpInside];
+//    [self.mainScrollView addSubview:right];
     
     yPositon += 47;
     
     self.mainScrollView.contentSize = CGSizeMake(320, yPositon);
 }
+
 - (void)appointBtnClicked:(id)sender {
     GDAppointVC * apVC = [[GDAppointVC alloc]initWithFormNo:self.formNo type:0];
     [self.navigationController pushViewController:apVC animated:YES];
@@ -1290,13 +1910,129 @@
 }
 
 #pragma mark - pickerview delegate -
-// returns the number of 'columns' to display.
-- (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView {
+
+/**
+ *  功能:点击取消按钮
+ */
+- (void)viewPoper:(PhoneViewPoper *)aViewPoper cancelBtnClicked:(id)sender{
+    [aViewPoper hidePopView];
+}
+
+/**
+ *  功能:点击完成按钮
+ */
+- (void)viewPoper:(PhoneViewPoper *)aViewPoper finishBtnClicked:(id)sender{
+    NSInteger row = [self.viewPoper.pickerView selectedRowInComponent:0];
+    if (self.viewPoper.pickerView.tag == 1 ) {
+        NSMutableDictionary *dic = [self.causeOneArr safeObjectAtIndex:row];
+        NSString *str = [dic objectForKey:@"S1"];
+        self.selReasonOneDic = dic;//[dic objectForKey:@"O1"];
+        [self.reasonCateBtn setTitle:str forState:UIControlStateNormal];
+#warning 判断动环工单O1:101010406 S1:动力设备
+        if ([dic[@"S1"] isEqualToString:@"动力设备"]) {
+            self.donghuan=YES;
+        }else {
+            self.donghuan=NO;
+        }
+        [self updateDisplayView];
+    }else if (self.viewPoper.pickerView.tag == 2) {
+        NSMutableDictionary *dic = [self.causeTwoArr safeObjectAtIndex:row];
+        NSString *str = [dic objectForKey:@"S1"];
+        self.selReasonTwoDic = dic;//[dic objectForKey:@"O1"];
+        [self.detailReasonCateBtn setTitle:str forState:UIControlStateNormal];
+    }
+    else if (self.viewPoper.pickerView.tag == 3) {
+        NSMutableDictionary *dic = [self.causeThreeArr safeObjectAtIndex:row];
+        NSString *str = [dic objectForKey:@"Value"];
+        self.selReasonThreeDic = dic;//[dic objectForKey:@"O1"];
+        [self.reasonBtn setTitle:str forState:UIControlStateNormal];
+    }else if (self.viewPoper.pickerView.tag == 4) {
+        NSMutableDictionary *dic = [self.handleMethodIdArr safeObjectAtIndex:row];
+        NSString *str = [dic objectForKey:@"RoomName"];
+        self.selHandleMethodDic = dic;//[dic objectForKey:@"O1"];
+        
+        //            if (self.selDealWaySortDic && self.dealWaySortBtn) {
+        //                NSDictionary *infoDic = [self.mutableInfoArr safeObjectAtIndex:row];
+        //
+        //                NSMutableDictionary *oneDic = [NSMutableDictionary dictionary];
+        //                [oneDic setSafeObject:[infoDic objectForKey:@"OneCause"] forKey:@"S1"];
+        //                [oneDic setSafeObject:[infoDic objectForKey:@"OneCauseID"] forKey:@"01"];
+        //                self.selReasonOneDic = oneDic;
+        //
+        //                NSMutableDictionary *twoDic = [NSMutableDictionary dictionary];
+        //                [twoDic setSafeObject:[infoDic objectForKey:@"TwoCause"] forKey:@"S1"];
+        //                [twoDic setSafeObject:[infoDic objectForKey:@"TwoCauseID"] forKey:@"01"];
+        //                self.selReasonTwoDic = twoDic;
+        //
+        //                NSMutableDictionary *threeDic = [NSMutableDictionary dictionary];
+        //                [threeDic setSafeObject:[infoDic objectForKey:@"ThreeCause"] forKey:@"Value"];
+        //                [threeDic setSafeObject:[infoDic objectForKey:@"ThreeCauseID"] forKey:@"Key"];
+        //                self.selReasonThreeDic = threeDic;
+        //            }
+        // 选择处理方式的时候自动带出一二三级归因
+        NSDictionary *infoDic = [self.mutableInfoArr safeObjectAtIndex:row];
+        
+        NSMutableDictionary *oneDic = [NSMutableDictionary dictionary];
+        [oneDic setSafeObject:[infoDic objectForKey:@"OneCause"] forKey:@"S1"];
+        [oneDic setSafeObject:[infoDic objectForKey:@"OneCauseID"] forKey:@"01"];
+        self.selReasonOneDic = oneDic;
+        
+        NSMutableDictionary *twoDic = [NSMutableDictionary dictionary];
+        [twoDic setSafeObject:[infoDic objectForKey:@"TwoCause"] forKey:@"S1"];
+        [twoDic setSafeObject:[infoDic objectForKey:@"TwoCauseID"] forKey:@"01"];
+        self.selReasonTwoDic = twoDic;
+        
+        NSMutableDictionary *threeDic = [NSMutableDictionary dictionary];
+        [threeDic setSafeObject:[infoDic objectForKey:@"ThreeCause"] forKey:@"Value"];
+        [threeDic setSafeObject:[infoDic objectForKey:@"ThreeCauseID"] forKey:@"Key"];
+        self.selReasonThreeDic = threeDic;
+        
+        CGSize size = [str sizeWithFont:[UIFont systemFontOfSize:14.0] constrainedToSize:CGSizeMake(180, 2000)];
+        self.handleMethodStrSize = size;
+        [self updateDisplayView];
+    }else if (self.viewPoper.pickerView.tag == 5) { // 时间选择
+        NSDate *date = self.datePicker.date;
+        //NSDate *todayDate = [NSDate date];
+        NSDateFormatter *dateFor = [[NSDateFormatter alloc]init];
+        NSString * dateStr;
+        [dateFor setDateFormat:@"yyyy-MM-dd hh:mm:ss"];
+        dateStr = [dateFor stringFromDate:date];
+        self.selHandleTime = dateStr;
+        [self.handleTimeBtn setTitle:dateStr forState:UIControlStateNormal];
+    }else if (self.viewPoper.pickerView.tag == 6) {
+        NSMutableDictionary *dic = [self.dealWaySortArr safeObjectAtIndex:row];
+        NSString *str = [dic objectForKey:@"Sort"];
+        self.selDealWaySortDic = dic;//[dic objectForKey:@"O1"];
+        [self.dealWaySortBtn setTitle:str forState:UIControlStateNormal];
+        //[self getDealWaySortHeadedInfo:^{}];
+    }else if (self.viewPoper.pickerView.tag == 7) {
+        NSString* str=[self.equitArr safeObjectAtIndex:row];
+        [self.equiltBtn setTitle:str forState:UIControlStateNormal];
+    }else if (self.viewPoper.pickerView.tag==8){
+        NSString *str=[self.vendorArr safeObjectAtIndex:row];
+        [self.vendorBtn setTitle:str forState:UIControlStateNormal];
+    }else if (self.viewPoper.pickerView.tag==9){
+        NSDictionary *dic=[self.btsArr safeObjectAtIndex:row];
+        self.btsTxtV.text=dic[@"name"];
+    }
+    else{
+        
+    }
+
+}
+
+#pragma mark - picker view相关datasource和delegate
+/**
+ *  功能:picker view的componet数量
+ */
+- (NSInteger)viewPoper:(PhoneViewPoper *)aViewPoper numberOfComponentsInPickerView:(UIPickerView *)pickerView{
     return 1;
 }
 
-// returns the # of rows in each component..
-- (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component {
+/**
+ *  功能:picker view的componet的行数
+ */
+- (NSInteger)viewPoper:(PhoneViewPoper *)aViewPoper pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component{
     if (pickerView.tag == 1) {
         return self.causeOneArr.count;
     }else if (pickerView.tag == 2) {
@@ -1307,6 +2043,12 @@
         return self.handleMethodIdArr.count;
     }else if (pickerView.tag == 6) {
         return self.dealWaySortArr.count;
+    }else if (pickerView.tag==7){
+        return self.equitArr.count;
+    }else if (pickerView.tag==8){
+        return self.vendorArr.count;
+    }else if (pickerView.tag==9){
+        return  self.btsArr.count;
     }
     else{
         //        NSMutableDictionary *dic = [self.gongdanLevelArr safeObjectAtIndex:row];
@@ -1314,8 +2056,13 @@
         //        return str;
     }
     return 0;
+
 }
-- (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component {
+
+/**
+ *  功能:picker view每行的title
+ */
+- (NSString *)viewPoper:(PhoneViewPoper *)aViewPoper pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component{
     NSMutableDictionary *dic;
     NSString *str;
     if (pickerView.tag == 1) {
@@ -1326,24 +2073,20 @@
         str = [dic objectForKey:@"S1"];
     }else if (pickerView.tag == 3) {
         dic = [self.causeThreeArr safeObjectAtIndex:row];
-        str = [dic objectForKey:@"S1"];
+        str = [dic objectForKey:@"Value"];
     }else if (pickerView.tag == 4) {
         dic = [self.handleMethodIdArr safeObjectAtIndex:row];
         str = [dic objectForKey:@"RoomName"];
     }else{
-//        NSMutableDictionary *dic = [self.gongdanLevelArr safeObjectAtIndex:row];
-//        NSString *str = [dic objectForKey:@"Name"];
-//        return str;
+        //        NSMutableDictionary *dic = [self.gongdanLevelArr safeObjectAtIndex:row];
+        //        NSString *str = [dic objectForKey:@"Name"];
+        //        return str;
     }
     return str;
+
 }
 
-- (CGFloat)pickerView:(UIPickerView *)pickerView rowHeightForComponent:(NSInteger)component {
-    return 40;
-}
-
-- (UIView *)pickerView:(UIPickerView *)pickerView viewForRow:(NSInteger)row forComponent:(NSInteger)component reusingView:(UIView *)view {
-    
+-(UIView*)viewPoper:(PhoneViewPoper *)aViewPoper pickerView:(UIPickerView *)pickerView viewForRow:(NSInteger)row forComponent:(NSInteger)component{
     NSMutableDictionary *dic;
     NSString *str;
     if (pickerView.tag == 1) {
@@ -1361,6 +2104,13 @@
     }else if (pickerView.tag == 6) {
         dic = [self.dealWaySortArr safeObjectAtIndex:row];
         str = [dic objectForKey:@"Sort"];
+    }else if (pickerView.tag==7){
+        str=[self.equitArr safeObjectAtIndex:row];
+    }else if (pickerView.tag==8){
+        str=[self.vendorArr safeObjectAtIndex:row];
+    }else if (pickerView.tag==9){
+        NSDictionary *dic=[self.btsArr safeObjectAtIndex:row];
+        str=dic[@"name"];
     }
     else{
         //        NSMutableDictionary *dic = [self.gongdanLevelArr safeObjectAtIndex:row];
@@ -1376,7 +2126,95 @@
     label.minimumScaleFactor = 0.1;
     label.text = str;
     return label;
+
 }
+
+
+
+// returns the number of 'columns' to display.
+
+// returns the # of rows in each component..
+//- (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component {
+//    if (pickerView.tag == 1) {
+//        return self.causeOneArr.count;
+//    }else if (pickerView.tag == 2) {
+//        return self.causeTwoArr.count;
+//    }else if (pickerView.tag == 3) {
+//        return self.causeThreeArr.count;
+//    }else if (pickerView.tag == 4) {
+//        return self.handleMethodIdArr.count;
+//    }else if (pickerView.tag == 6) {
+//        return self.dealWaySortArr.count;
+//    }
+//    else{
+//        //        NSMutableDictionary *dic = [self.gongdanLevelArr safeObjectAtIndex:row];
+//        //        NSString *str = [dic objectForKey:@"Name"];
+//        //        return str;
+//    }
+//    return 0;
+//}
+//- (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component {
+//    NSMutableDictionary *dic;
+//    NSString *str;
+//    if (pickerView.tag == 1) {
+//        dic = [self.causeOneArr safeObjectAtIndex:row];
+//        str = [dic objectForKey:@"S1"];
+//    }else if (pickerView.tag == 2) {
+//        dic = [self.causeTwoArr safeObjectAtIndex:row];
+//        str = [dic objectForKey:@"S1"];
+//    }else if (pickerView.tag == 3) {
+//        dic = [self.causeThreeArr safeObjectAtIndex:row];
+//        str = [dic objectForKey:@"S1"];
+//    }else if (pickerView.tag == 4) {
+//        dic = [self.handleMethodIdArr safeObjectAtIndex:row];
+//        str = [dic objectForKey:@"RoomName"];
+//    }else{
+////        NSMutableDictionary *dic = [self.gongdanLevelArr safeObjectAtIndex:row];
+////        NSString *str = [dic objectForKey:@"Name"];
+////        return str;
+//    }
+//    return str;
+//}
+
+//- (CGFloat)pickerView:(UIPickerView *)pickerView rowHeightForComponent:(NSInteger)component {
+//    return 40;
+//}
+//
+//- (UIView *)pickerView:(UIPickerView *)pickerView viewForRow:(NSInteger)row forComponent:(NSInteger)component reusingView:(UIView *)view {
+//    
+//    NSMutableDictionary *dic;
+//    NSString *str;
+//    if (pickerView.tag == 1) {
+//        dic = [self.causeOneArr safeObjectAtIndex:row];
+//        str = [dic objectForKey:@"S1"];
+//    }else if (pickerView.tag == 2) {
+//        dic = [self.causeTwoArr safeObjectAtIndex:row];
+//        str = [dic objectForKey:@"S1"];
+//    }else if (pickerView.tag == 3) {
+//        dic = [self.causeThreeArr safeObjectAtIndex:row];
+//        str = [dic objectForKey:@"Value"];
+//    }else if (pickerView.tag == 4) {
+//        dic = [self.handleMethodIdArr safeObjectAtIndex:row];
+//        str = [dic objectForKey:@"RoomName"];
+//    }else if (pickerView.tag == 6) {
+//        dic = [self.dealWaySortArr safeObjectAtIndex:row];
+//        str = [dic objectForKey:@"Sort"];
+//    }
+//    else{
+//        //        NSMutableDictionary *dic = [self.gongdanLevelArr safeObjectAtIndex:row];
+//        //        NSString *str = [dic objectForKey:@"Name"];
+//        //        return str;
+//    }
+//    UILabel *label = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, 280, 40)];
+//    label.backgroundColor = [UIColor clearColor];
+//    label.numberOfLines = 0;
+//    label.font = [UIFont systemFontOfSize:16.0];
+//    label.adjustsFontSizeToFitWidth = YES;
+//    label.adjustsLetterSpacingToFitWidth = YES;
+//    label.minimumScaleFactor = 0.1;
+//    label.text = str;
+//    return label;
+//}
 
 #pragma mark - alertView & actionsheet & textfield & scrollview -
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
@@ -1395,8 +2233,20 @@
             //[self rejectTheForm];
         }else if (alertView.tag == 102) {
             [self acceptTheForm];
+        }else if (alertView.tag==400){
+            [self gaojingAction:@"2" doc:@"告警核实"];
+        }else if (alertView.tag==900){//阶段回复
+            UITextField *tf=[alertView textFieldAtIndex:0];
+            [self gaojingAction:@"1" doc:tf.text];
+        }else if (alertView.tag==901){//申请延期
+            UITextField *tf=[alertView textFieldAtIndex:0];
+            [self gaojingAction:@"4" doc:tf.text];
         }
     }
+}
+-(void)dealloc{
+    self.mainScrollView.delegate=nil;
+    self.formFlowView.delegate=nil;
 }
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     if (scrollView.tag == 11) {
@@ -1407,6 +2257,9 @@
 }
 
 - (void)textViewDidBeginEditing:(UITextView *)textView {
+    if (textView.tag==10086) {
+        return;
+    }
     CGRect rec = textView.frame;
     CGFloat offset = 216+20 - (self.mainScrollView.frame.size.height - rec.size.height- rec.origin.y);// + self.mainScrollView.contentOffset.y;
     
@@ -1414,6 +2267,10 @@
     [self.mainScrollView setContentOffset:CGPointMake(0, offset) animated:YES];
 }
 - (BOOL)textViewShouldEndEditing:(UITextView *)textView {
+    if (textView.tag==10086) {
+        return YES;
+    }
+
     [self.mainScrollView setContentOffset:CGPointMake(0, self.mainScrollView.contentSize.height-self.mainScrollView.frame.size.height) animated:YES];
     if (textView.text != nil) {
         if (textView.tag == 11) {
@@ -1456,90 +2313,90 @@
     [self.handlerTF resignFirstResponder];
     return YES;
 }
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
-    if (!buttonIndex) {
-        NSInteger row = [self.picker selectedRowInComponent:0];
-        if (actionSheet.tag == 1 ) {
-            NSMutableDictionary *dic = [self.causeOneArr safeObjectAtIndex:row];
-            NSString *str = [dic objectForKey:@"S1"];
-            self.selReasonOneDic = dic;//[dic objectForKey:@"O1"];
-            [self.reasonCateBtn setTitle:str forState:UIControlStateNormal];
-        }else if (actionSheet.tag == 2) {
-            NSMutableDictionary *dic = [self.causeTwoArr safeObjectAtIndex:row];
-            NSString *str = [dic objectForKey:@"S1"];
-            self.selReasonTwoDic = dic;//[dic objectForKey:@"O1"];
-            [self.detailReasonCateBtn setTitle:str forState:UIControlStateNormal];
-        }
-        else if (actionSheet.tag == 3) {
-            NSMutableDictionary *dic = [self.causeThreeArr safeObjectAtIndex:row];
-            NSString *str = [dic objectForKey:@"Value"];
-            self.selReasonThreeDic = dic;//[dic objectForKey:@"O1"];
-            [self.reasonBtn setTitle:str forState:UIControlStateNormal];
-        }else if (actionSheet.tag == 4) {
-            NSMutableDictionary *dic = [self.handleMethodIdArr safeObjectAtIndex:row];
-            NSString *str = [dic objectForKey:@"RoomName"];
-            self.selHandleMethodDic = dic;//[dic objectForKey:@"O1"];
-            
-//            if (self.selDealWaySortDic && self.dealWaySortBtn) {
-//                NSDictionary *infoDic = [self.mutableInfoArr safeObjectAtIndex:row];
-//                
-//                NSMutableDictionary *oneDic = [NSMutableDictionary dictionary];
-//                [oneDic setSafeObject:[infoDic objectForKey:@"OneCause"] forKey:@"S1"];
-//                [oneDic setSafeObject:[infoDic objectForKey:@"OneCauseID"] forKey:@"01"];
-//                self.selReasonOneDic = oneDic;
-//                
-//                NSMutableDictionary *twoDic = [NSMutableDictionary dictionary];
-//                [twoDic setSafeObject:[infoDic objectForKey:@"TwoCause"] forKey:@"S1"];
-//                [twoDic setSafeObject:[infoDic objectForKey:@"TwoCauseID"] forKey:@"01"];
-//                self.selReasonTwoDic = twoDic;
-//                
-//                NSMutableDictionary *threeDic = [NSMutableDictionary dictionary];
-//                [threeDic setSafeObject:[infoDic objectForKey:@"ThreeCause"] forKey:@"Value"];
-//                [threeDic setSafeObject:[infoDic objectForKey:@"ThreeCauseID"] forKey:@"Key"];
-//                self.selReasonThreeDic = threeDic;
-//            }
-            // 选择处理方式的时候自动带出一二三级归因
-            NSDictionary *infoDic = [self.mutableInfoArr safeObjectAtIndex:row];
-            
-            NSMutableDictionary *oneDic = [NSMutableDictionary dictionary];
-            [oneDic setSafeObject:[infoDic objectForKey:@"OneCause"] forKey:@"S1"];
-            [oneDic setSafeObject:[infoDic objectForKey:@"OneCauseID"] forKey:@"01"];
-            self.selReasonOneDic = oneDic;
-            
-            NSMutableDictionary *twoDic = [NSMutableDictionary dictionary];
-            [twoDic setSafeObject:[infoDic objectForKey:@"TwoCause"] forKey:@"S1"];
-            [twoDic setSafeObject:[infoDic objectForKey:@"TwoCauseID"] forKey:@"01"];
-            self.selReasonTwoDic = twoDic;
-            
-            NSMutableDictionary *threeDic = [NSMutableDictionary dictionary];
-            [threeDic setSafeObject:[infoDic objectForKey:@"ThreeCause"] forKey:@"Value"];
-            [threeDic setSafeObject:[infoDic objectForKey:@"ThreeCauseID"] forKey:@"Key"];
-            self.selReasonThreeDic = threeDic;
-            
-            CGSize size = [str sizeWithFont:[UIFont systemFontOfSize:14.0] constrainedToSize:CGSizeMake(180, 2000)];
-            self.handleMethodStrSize = size;
-            [self updateDisplayView];
-        }else if (actionSheet.tag == 5) { // 时间选择
-            NSDate *date = self.datePicker.date;
-            //NSDate *todayDate = [NSDate date];
-            NSDateFormatter *dateFor = [[NSDateFormatter alloc]init];
-            NSString * dateStr;
-            [dateFor setDateFormat:@"yyyy-MM-dd hh:mm:ss"];
-            dateStr = [dateFor stringFromDate:date];
-            self.selHandleTime = dateStr;
-            [self.handleTimeBtn setTitle:dateStr forState:UIControlStateNormal];
-        }else if (actionSheet.tag == 6) {
-            NSMutableDictionary *dic = [self.dealWaySortArr safeObjectAtIndex:row];
-            NSString *str = [dic objectForKey:@"Sort"];
-            self.selDealWaySortDic = dic;//[dic objectForKey:@"O1"];
-            [self.dealWaySortBtn setTitle:str forState:UIControlStateNormal];
-            //[self getDealWaySortHeadedInfo:^{}];
-        }else if (actionSheet.tag == 7) {
-        }else{
-            
-        }
-    }
-}
+//- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+//    if (!buttonIndex) {
+//        NSInteger row = [self.picker selectedRowInComponent:0];
+//        if (actionSheet.tag == 1 ) {
+//            NSMutableDictionary *dic = [self.causeOneArr safeObjectAtIndex:row];
+//            NSString *str = [dic objectForKey:@"S1"];
+//            self.selReasonOneDic = dic;//[dic objectForKey:@"O1"];
+//            [self.reasonCateBtn setTitle:str forState:UIControlStateNormal];
+//        }else if (actionSheet.tag == 2) {
+//            NSMutableDictionary *dic = [self.causeTwoArr safeObjectAtIndex:row];
+//            NSString *str = [dic objectForKey:@"S1"];
+//            self.selReasonTwoDic = dic;//[dic objectForKey:@"O1"];
+//            [self.detailReasonCateBtn setTitle:str forState:UIControlStateNormal];
+//        }
+//        else if (actionSheet.tag == 3) {
+//            NSMutableDictionary *dic = [self.causeThreeArr safeObjectAtIndex:row];
+//            NSString *str = [dic objectForKey:@"Value"];
+//            self.selReasonThreeDic = dic;//[dic objectForKey:@"O1"];
+//            [self.reasonBtn setTitle:str forState:UIControlStateNormal];
+//        }else if (actionSheet.tag == 4) {
+//            NSMutableDictionary *dic = [self.handleMethodIdArr safeObjectAtIndex:row];
+//            NSString *str = [dic objectForKey:@"RoomName"];
+//            self.selHandleMethodDic = dic;//[dic objectForKey:@"O1"];
+//            
+////            if (self.selDealWaySortDic && self.dealWaySortBtn) {
+////                NSDictionary *infoDic = [self.mutableInfoArr safeObjectAtIndex:row];
+////                
+////                NSMutableDictionary *oneDic = [NSMutableDictionary dictionary];
+////                [oneDic setSafeObject:[infoDic objectForKey:@"OneCause"] forKey:@"S1"];
+////                [oneDic setSafeObject:[infoDic objectForKey:@"OneCauseID"] forKey:@"01"];
+////                self.selReasonOneDic = oneDic;
+////                
+////                NSMutableDictionary *twoDic = [NSMutableDictionary dictionary];
+////                [twoDic setSafeObject:[infoDic objectForKey:@"TwoCause"] forKey:@"S1"];
+////                [twoDic setSafeObject:[infoDic objectForKey:@"TwoCauseID"] forKey:@"01"];
+////                self.selReasonTwoDic = twoDic;
+////                
+////                NSMutableDictionary *threeDic = [NSMutableDictionary dictionary];
+////                [threeDic setSafeObject:[infoDic objectForKey:@"ThreeCause"] forKey:@"Value"];
+////                [threeDic setSafeObject:[infoDic objectForKey:@"ThreeCauseID"] forKey:@"Key"];
+////                self.selReasonThreeDic = threeDic;
+////            }
+//            // 选择处理方式的时候自动带出一二三级归因
+//            NSDictionary *infoDic = [self.mutableInfoArr safeObjectAtIndex:row];
+//            
+//            NSMutableDictionary *oneDic = [NSMutableDictionary dictionary];
+//            [oneDic setSafeObject:[infoDic objectForKey:@"OneCause"] forKey:@"S1"];
+//            [oneDic setSafeObject:[infoDic objectForKey:@"OneCauseID"] forKey:@"01"];
+//            self.selReasonOneDic = oneDic;
+//            
+//            NSMutableDictionary *twoDic = [NSMutableDictionary dictionary];
+//            [twoDic setSafeObject:[infoDic objectForKey:@"TwoCause"] forKey:@"S1"];
+//            [twoDic setSafeObject:[infoDic objectForKey:@"TwoCauseID"] forKey:@"01"];
+//            self.selReasonTwoDic = twoDic;
+//            
+//            NSMutableDictionary *threeDic = [NSMutableDictionary dictionary];
+//            [threeDic setSafeObject:[infoDic objectForKey:@"ThreeCause"] forKey:@"Value"];
+//            [threeDic setSafeObject:[infoDic objectForKey:@"ThreeCauseID"] forKey:@"Key"];
+//            self.selReasonThreeDic = threeDic;
+//            
+//            CGSize size = [str sizeWithFont:[UIFont systemFontOfSize:14.0] constrainedToSize:CGSizeMake(180, 2000)];
+//            self.handleMethodStrSize = size;
+//            [self updateDisplayView];
+//        }else if (actionSheet.tag == 5) { // 时间选择
+//            NSDate *date = self.datePicker.date;
+//            //NSDate *todayDate = [NSDate date];
+//            NSDateFormatter *dateFor = [[NSDateFormatter alloc]init];
+//            NSString * dateStr;
+//            [dateFor setDateFormat:@"yyyy-MM-dd hh:mm:ss"];
+//            dateStr = [dateFor stringFromDate:date];
+//            self.selHandleTime = dateStr;
+//            [self.handleTimeBtn setTitle:dateStr forState:UIControlStateNormal];
+//        }else if (actionSheet.tag == 6) {
+//            NSMutableDictionary *dic = [self.dealWaySortArr safeObjectAtIndex:row];
+//            NSString *str = [dic objectForKey:@"Sort"];
+//            self.selDealWaySortDic = dic;//[dic objectForKey:@"O1"];
+//            [self.dealWaySortBtn setTitle:str forState:UIControlStateNormal];
+//            //[self getDealWaySortHeadedInfo:^{}];
+//        }else if (actionSheet.tag == 7) {
+//        }else{
+//            
+//        }
+//    }
+//}
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];

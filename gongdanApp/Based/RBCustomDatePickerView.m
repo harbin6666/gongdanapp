@@ -218,7 +218,7 @@
     return 60;
 }
 
-- (UIView *)pageAtIndex:(NSInteger)index andScrollView:(MXSCycleScrollView *)scrollView
+- (UIView *)pageAtIndex:(NSUInteger)index andScrollView:(MXSCycleScrollView *)scrollView
 {
     UILabel *l = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, scrollView.bounds.size.width, scrollView.bounds.size.height/5)];
     l.tag = index+1;

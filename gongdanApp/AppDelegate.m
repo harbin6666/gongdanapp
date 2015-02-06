@@ -12,19 +12,154 @@
 #import "GDCopyVC.h"
 #import "GDDoneVC.h"
 #import "GDSearchVC.h"
+#import "GDMainHandleVC.h"
+#import <AVFoundation/AVAudioPlayer.h>
+#import <AVFoundation/AVFoundation.h>
+#define kMQTTServerHost @"120.202.255.76"
+@interface AppDelegate()<UIAlertViewDelegate,AVAudioPlayerDelegate>
+@property(nonatomic,strong)GDWaitTodoVC *vc1;
+@property(nonatomic,strong)NSTimer *timer;
+@property(nonatomic,strong)NSDictionary*pushDic;
+@property(nonatomic,assign)int counter;
+@property (nonatomic, strong) AVAudioPlayer *audioPlayer;
 
+@end
 @implementation AppDelegate
+static MQTTClient *client=nil;
 
 @synthesize managedObjectContext = _managedObjectContext;
 @synthesize managedObjectModel = _managedObjectModel;
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
+#pragma mark mqtt
+-(void)mqtt{
+    if (self.loginedUserName==nil||[self.loginedUserName isEqualToString:@""]) {
+        return;
+    }
+    NSString *clientID = [UIDevice currentDevice].identifierForVendor.UUIDString;
+//    if (self.client!=nil) {
+//        [self.client disconnectWithCompletionHandler:^(NSUInteger code) {
+//            self.client=nil;
+//        }];        
+//    }
+    NSLog(@"%@",client);
+    if (client==nil) {
+        NSLog(@"new connect!!!!!!!");
+        client = [[MQTTClient alloc] initWithClientId:[NSString stringWithFormat:@"trackW/%@",clientID]];
+        client.username=@"admin";
+        client.password=@"123456a?";
+    
 
+    __block __weak typeof(self) weakself=self;
+    // define the handler that will be called when MQTT messages are received by the client
+    [client setMessageHandler:^(MQTTMessage *message) {
+        typeof(weakself)self=weakself;
+        // Any update to the UI must be done on the main queue
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (message.payload!=nil) {
+                NSDictionary* result=[NSJSONSerialization JSONObjectWithData:message.payload options:0 error:nil];
+                if (result!=nil) {
+                    [self addLocalNotify:result];
+                }
+            }
+        });
+    }];
+    NSLog(@" self.client.connected=%d\n",client.connected);
+    // connect the MQTT client
+    [client connectToHost:kMQTTServerHost completionHandler:^(MQTTConnectionReturnCode code) {
+        if (code == ConnectionAccepted) {
+            // The client is connected when this completion handler is called
+            NSLog(@"client is connected with id %@", clientID);
+//            NSLog(@"self.client.connected=%d\n\n\n",self.client.connected);
+            // Subscribe to the topic
+            [client subscribe:[NSString stringWithFormat:@"trackW/%@",self.loginedUserName] withCompletionHandler:^(NSArray *grantedQos) {
+                // The client is effectively subscribed to the topic when this completion handler is called
+                NSLog(@"subscribed to topic %@", self.loginedUserName);
+            }];
+        }
+    }];
+    }
+}
+
+
+-(void)playsoundForever{
+    dispatch_queue_t dispatchQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async(dispatchQueue, ^(void) {
+        NSError *audioSessionError = nil;
+        AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+        if ([audioSession setCategory:AVAudioSessionCategoryPlayback error:&audioSessionError]){
+            NSLog(@"Successfully set the audio session.");
+        } else {
+            NSLog(@"Could not set the audio session");
+        }
+        
+        
+        NSBundle *mainBundle = [NSBundle mainBundle];
+        NSString *filePath = [mainBundle pathForResource:@"mySong" ofType:@"mp3"];
+        NSData *fileData = [NSData dataWithContentsOfFile:filePath];
+        NSError *error = nil;
+        
+        self.audioPlayer = [[AVAudioPlayer alloc] initWithData:fileData error:&error];
+        
+        if (self.audioPlayer != nil){
+            self.audioPlayer.delegate = self;
+            
+            [self.audioPlayer setNumberOfLoops:-1];
+            if ([self.audioPlayer prepareToPlay] && [self.audioPlayer play]){
+                NSLog(@"Successfully started playing...");
+            } else {
+                NSLog(@"Failed to play.");
+            }
+        } else {
+            
+        }
+    });
+}
+- (void)backgroundHandler {
+    NSLog(@"### -->backgroundinghandler");
+    UIApplication*    app = [UIApplication sharedApplication];
+   __block UIBackgroundTaskIdentifier bgTask = [app beginBackgroundTaskWithExpirationHandler:^{
+       NSLog(@"### -->endBackgroundTask");
+        [app endBackgroundTask:bgTask];
+        
+        bgTask=UIBackgroundTaskInvalid;
+        
+    }];
+    // Start the long-running task
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSLog(@"Running in the background\n");
+        while (1) {
+            NSLog(@"Background time Remaining: %f",[app backgroundTimeRemaining]);
+            NSLog(@"counter:%d", self.counter++);
+            if (self.counter%10==0) {
+                [self mqtt];
+            }
+            sleep(1);
+        }
+        
+    });
+    
+}
+-(void)addLocalNotify:(NSDictionary*)dic{
+    UILocalNotification *localNotification = [[UILocalNotification alloc] init];
+    localNotification.userInfo=dic;
+    // 设置notification的属性
+    localNotification.fireDate = [NSDate dateWithTimeIntervalSinceNow:1]; //出发时间
+    localNotification.alertBody = dic[@"FormNo"]; // 消息内容
+    localNotification.repeatInterval = 0; // 重复的时间间隔
+    localNotification.soundName = UILocalNotificationDefaultSoundName; // 触发消息时播放的声音
+    localNotification.applicationIconBadgeNumber = 1; //应用程序Badge数目
+    [[UIApplication sharedApplication] scheduleLocalNotification:localNotification]; //注册
+
+}
+#pragma mark mqtt
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
-{   
+{
+
+    
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
-    GDWaitTodoVC *vc1 = [[GDWaitTodoVC alloc]init];
-    GDBasedNC *nc1 = [[GDBasedNC alloc]initWithRootViewController:vc1];
+    self.vc1 = [[GDWaitTodoVC alloc]init];
+    GDBasedNC *nc1 = [[GDBasedNC alloc]initWithRootViewController:self.vc1];
     nc1.tabBarItem = [[UITabBarItem alloc]initWithTitle:@"待办工单" image:[UIImage imageNamed:@"item1"] tag:0];//[UIImage imageNamed:@"backlog_normal"] tag:0];
     
     GDCopyVC *vc2 = [[GDCopyVC alloc]init];
@@ -57,7 +192,12 @@
     
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
+//    [self addLocalNotify:@{@"FormNo":@"HB-051-150127-23118",@"FormStatus" : @"2",@"OutTimeStatus" : @0,@"Result":@[@{@"Key":@"工单编号",@"Value":@"HB-051-141014-22149"},@{@"Key":@"工单主题",@"Value":@"测试"},@{@"Key":@"处理时限",@"Value":@"2014-10-15 13:52:26"}]}];
     return YES;
+}
+
+-(void)freshTimer{
+    self.timer=[NSTimer scheduledTimerWithTimeInterval:self.todoFreshTime.integerValue target:self.vc1 selector:@selector(getData) userInfo:nil repeats:YES];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application
@@ -68,8 +208,22 @@
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
-    // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. 
-    // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+
+//    [self mqtt];
+//
+//    BOOL background=[[UIApplication sharedApplication] setKeepAliveTimeout:600 handler: ^
+//                     {
+//                         [self mqtt];
+//                         NSLog(@"%@   background ON",[UIApplication sharedApplication]);
+//                     }];
+    BOOL backgroundAccepted = [[UIApplication sharedApplication] setKeepAliveTimeout:600 handler:^{
+        NSLog(@"backgrounding accepted");
+        [self backgroundHandler];
+    }];
+    if (backgroundAccepted)
+    {
+    }
+    [self backgroundHandler];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
@@ -101,7 +255,27 @@
         } 
     }
 }
+#pragma mark local notify
+-(void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification{
+    self.pushDic=notification.userInfo;
+    notification.applicationIconBadgeNumber=0;
+    [UIApplication sharedApplication].applicationIconBadgeNumber=0;
+   UIAlertView* alert= [[UIAlertView alloc] initWithTitle:@"新的工单" message:notification.alertBody delegate:self cancelButtonTitle:@"忽略" otherButtonTitles:@"查看", nil];
+    [alert show];
+}
 
+-(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
+    if (buttonIndex==1) {
+        
+        NSString *formNo = [self.pushDic objectForKey:@"FormNo"];
+        NSNumber *formState = [self.pushDic objectForKey:@"FormStatus"];
+        
+        GDMainHandleVC *hvc = [[GDMainHandleVC alloc]initWithFormNo:formNo formType:FormType_todo formsearchState:FormSearchState_TodoAndDoing formState:formState.intValue];
+        hvc.hidesBottomBarWhenPushed = YES;
+        GDBasedNC *selectNc=(GDBasedNC*)self.tabbarController.selectedViewController;
+        [selectNc.topViewController.navigationController pushViewController:hvc animated:YES];
+    }
+}
 #pragma mark - Core Data stack
 
 // Returns the managed object context for the application.

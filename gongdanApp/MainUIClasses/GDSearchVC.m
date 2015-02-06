@@ -10,8 +10,9 @@
 #import <QuartzCore/QuartzCore.h>
 #import "SearchResultVC.h"
 #import "RBCustomDatePickerView.h"
-
-@interface GDSearchVC ()
+#import "PhoneViewPoper.h"
+#import "GDServiceV2.h"
+@interface GDSearchVC ()<PhoneViewPoperDelegate>
 @property(nonatomic, strong)UIButton *startTimeBtn;
 @property(nonatomic, strong)UIButton *endTimeBtn;
 @property(nonatomic, strong)UIButton *categoryBtn;
@@ -39,6 +40,9 @@
 @property(nonatomic, strong)NSDate *startDate;
 @property(nonatomic, strong)NSDate *endDate;
 @property(nonatomic, strong)NSNumber *formState;
+@property(nonatomic, strong)PhoneViewPoper *viewPoper;
+@property (nonatomic, strong)UITextField *formNoTf,*formTitTf;
+@property (nonatomic,strong)UIScrollView *scrollView;
 @end
 
 @implementation GDSearchVC
@@ -76,7 +80,7 @@
     
     self.teamId = self.teamId;
     [self.teamBtn setTitle:self.teamName forState:UIControlStateNormal];
-    [self.t2HandlerBtn setTitle:SharedDelegate.loginedUserName forState:UIControlStateNormal];
+    [self.t2HandlerBtn setTitle:SharedDelegate.userZhName forState:UIControlStateNormal];
     self.t2HandlerId = @"ALL";
     
     self.formState = __INT(-1);
@@ -118,8 +122,12 @@
     [dic setSafeObject:self.level forKey:@"FormLevel"];
     [dic setSafeObject:self.groupName forKey:@"NetTypeOne"];
     [dic setSafeObject:self.teamId forKey:@"GroupName"];
+    [dic setObject:self.formNoTf.text forKey:@"FormNo"];
+    [dic setObject:self.formTitTf.text forKey:@"FormTitle"];
     [self showLoading];
-    [GDService requestWithFunctionName:@"get_form_query" pramaDic:dic requestMethod:@"POST" completion:^(id reObj) {
+    
+    
+    [GDServiceV2 requestFunc:@"wo_get_form_query" WithParam:dic withCompletBlcok:^(id reObj, NSError *error) {
         [self hideLoading];
         if ([reObj isKindOfClass:[NSArray class]]) {
             NSMutableArray *arr = reObj;
@@ -139,7 +147,30 @@
                 [alert show];
             }
         }
+
     }];
+    
+//    [GDService requestWithFunctionName:@"get_form_query" pramaDic:dic requestMethod:@"POST" completion:^(id reObj) {
+//        [self hideLoading];
+//        if ([reObj isKindOfClass:[NSArray class]]) {
+//            NSMutableArray *arr = reObj;
+//            if (arr.count > 0) {
+//                NSDictionary *dic1 = [arr safeObjectAtIndex:0];
+//                //            NSNumber *flag = [dic objectForKey:@"Flag"];
+//                NSString *desc = [dic1 objectForKey:@"Desc"];
+//                if (desc) {
+//                    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"失败" message:desc delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+//                    [alert show];
+//                }else{
+//                    SearchResultVC *svc = [[SearchResultVC alloc]initWithPramaDic:dic dataArr:arr];
+//                    [self.navigationController pushViewController:svc animated:YES];
+//                }
+//            }else{
+//                UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"查询无数据" message:nil delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+//                [alert show];
+//            }
+//        }
+//    }];
     //{"NetTypeOne":"101010401","GroupName":"8a9982f2222d2030012231a4252110ab","Operator":"inspur","FormState":2,"FormLevel":1,"StartTime":"2013-11-01 00:00:00","EndTime":"2013-11-01 23:59:59","StartNo":1,"EndNo":5}
 }
 - (void)getNetClass:(id)sender {
@@ -226,18 +257,58 @@
 
 #pragma mark - UIInition -
 - (void)initAllSection {
-    UIScrollView *scrollView = [[UIScrollView alloc]initWithFrame:self.view.bounds];
-    [scrollView setAlwaysBounceVertical:YES];
-    scrollView.delegate = self;
-    [self.view addSubview:scrollView];
+    self.scrollView = [[UIScrollView alloc]initWithFrame:self.view.bounds];
+    [self.scrollView setAlwaysBounceVertical:YES];
+    self.scrollView.delegate = self;
+    [self.view addSubview:self.scrollView];
     int yPositon = 10;
+    
+    //section0
+    UIView *sectionV = [[UIView alloc]initWithFrame:CGRectMake(10, yPositon, 300, 100)];
+    sectionV.layer.borderWidth = 1.0;
+    yPositon += 100+15;
+
+    [self.scrollView addSubview:sectionV];
+    UILabel *normalLabel = [[UILabel alloc]initWithFrame:CGRectMake(10, 15, 130, 30)];
+    normalLabel.text = @"工单编号：";
+    normalLabel.backgroundColor = [UIColor clearColor];
+    [sectionV addSubview:normalLabel];
+    
+    normalLabel = [[UILabel alloc]initWithFrame:CGRectMake(10, 60, 130, 30)];
+    normalLabel.text = @"工单主题：";
+    normalLabel.backgroundColor = [UIColor clearColor];
+    [sectionV addSubview:normalLabel];
+    
+    
+    UIButton *right = [[UIButton alloc]initWithFrame:CGRectMake(100, 10, 190, 40)];
+    [right setBackgroundImage:[UIImage imageNamed:@"dealInputFrame"] forState:UIControlStateNormal];
+    [sectionV addSubview:right];
+    
+    
+    self.formNoTf = [[UITextField alloc]initWithFrame:CGRectMake(100, 10, 190, 40)];
+    self.formNoTf.backgroundColor = [UIColor clearColor];
+    self.formNoTf.delegate = self;
+    self.formNoTf.font = [UIFont systemFontOfSize:14.0];
+    [sectionV addSubview:self.formNoTf];
+    
+    right = [[UIButton alloc]initWithFrame:CGRectMake(100, 55, 190, 40)];
+    [right setBackgroundImage:[UIImage imageNamed:@"dealInputFrame"] forState:UIControlStateNormal];
+    [sectionV addSubview:right];
+    
+    
+    self.formTitTf = [[UITextField alloc]initWithFrame:CGRectMake(100, 55, 190, 40)];
+    self.formTitTf.backgroundColor = [UIColor clearColor];
+    self.formTitTf.delegate = self;
+    self.formTitTf.font = [UIFont systemFontOfSize:14.0];
+    [sectionV addSubview:self.formTitTf];
+
     // section 1
-    UIView *sectionV = [[UIView alloc]initWithFrame:CGRectMake(10, yPositon, 300, 150)];
+    sectionV = [[UIView alloc]initWithFrame:CGRectMake(10, yPositon, 300, 150)];
     sectionV.layer.borderWidth = 1.0;
     yPositon += 150+15;
-    [scrollView addSubview:sectionV];
+    [self.scrollView addSubview:sectionV];
     
-    UILabel *normalLabel = [[UILabel alloc]initWithFrame:CGRectMake(10, 15, 130, 30)];
+    normalLabel = [[UILabel alloc]initWithFrame:CGRectMake(10, 15, 130, 30)];
     normalLabel.text = @"派单开始时间：";
     normalLabel.backgroundColor = [UIColor clearColor];
     [sectionV addSubview:normalLabel];
@@ -301,57 +372,57 @@
     
     [sectionV addSubview:_categoryBtn];
     
-    // section 2
-    sectionV = [[UIView alloc]initWithFrame:CGRectMake(10, yPositon, 300, 100)];
-    sectionV.layer.borderWidth = 1.0;
-    yPositon += 100+15;
-    [scrollView addSubview:sectionV];
-    
-    normalLabel = [[UILabel alloc]initWithFrame:CGRectMake(10, 15, 130, 30)];
-    normalLabel.text = @"部门班组：";
-    normalLabel.backgroundColor = [UIColor clearColor];
-    [sectionV addSubview:normalLabel];
-    
-    normalLabel = [[UILabel alloc]initWithFrame:CGRectMake(10, 60, 130, 30)];
-    normalLabel.text = @"T2处理人：";
-    normalLabel.backgroundColor = [UIColor clearColor];
-    [sectionV addSubview:normalLabel];
-    
-    self.teamBtn = [[UIButton alloc]initWithFrame:CGRectMake(100, 10, 190, 40)];
-    _teamBtn.titleLabel.textAlignment = NSTextAlignmentLeft;
-    _teamBtn.layer.borderWidth = 1.0;
-    _teamBtn.tag = 4;
-    [_teamBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-    _teamBtn.titleLabel.font = [UIFont systemFontOfSize:14.0];
-    [_teamBtn addTarget:self action:@selector(getTeamAndGroup:) forControlEvents:UIControlEventTouchUpInside];
-    _teamBtn.layer.borderColor = [UIColor colorWithRed:153.0/255 green:181.0/255 blue:194.0/255 alpha:1.0].CGColor;
-    
-    arrow = [[UIImageView alloc]initWithFrame:CGRectMake(170, 8, 15, 24)];
-    arrow.image = [UIImage imageNamed:@"downArr"];
-    [_teamBtn addSubview:arrow];
-    
-    [sectionV addSubview:_teamBtn];
-    
-    self.t2HandlerBtn = [[UIButton alloc]initWithFrame:CGRectMake(100, 55, 190, 40)];
-    _t2HandlerBtn.titleLabel.textAlignment = NSTextAlignmentLeft;
-    _t2HandlerBtn.layer.borderWidth = 1.0;
-    _t2HandlerBtn.tag = 5;
-    [_t2HandlerBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-    _t2HandlerBtn.titleLabel.font = [UIFont systemFontOfSize:14.0];
-    [_t2HandlerBtn addTarget:self action:@selector(getT2User:) forControlEvents:UIControlEventTouchUpInside];
-    _t2HandlerBtn.layer.borderColor = [UIColor colorWithRed:153.0/255 green:181.0/255 blue:194.0/255 alpha:1.0].CGColor;
-    
-    arrow = [[UIImageView alloc]initWithFrame:CGRectMake(170, 8, 15, 24)];
-    arrow.image = [UIImage imageNamed:@"downArr"];
-    [_t2HandlerBtn addSubview:arrow];
-    
-    [sectionV addSubview:_t2HandlerBtn];
+//    // section 2
+//    sectionV = [[UIView alloc]initWithFrame:CGRectMake(10, yPositon, 300, 100)];
+//    sectionV.layer.borderWidth = 1.0;
+//    yPositon += 100+15;
+//    [self.scrollView addSubview:sectionV];
+//    
+//    normalLabel = [[UILabel alloc]initWithFrame:CGRectMake(10, 15, 130, 30)];
+//    normalLabel.text = @"部门班组：";
+//    normalLabel.backgroundColor = [UIColor clearColor];
+//    [sectionV addSubview:normalLabel];
+//    
+//    normalLabel = [[UILabel alloc]initWithFrame:CGRectMake(10, 60, 130, 30)];
+//    normalLabel.text = @"T2处理人：";
+//    normalLabel.backgroundColor = [UIColor clearColor];
+//    [sectionV addSubview:normalLabel];
+//    
+//    self.teamBtn = [[UIButton alloc]initWithFrame:CGRectMake(100, 10, 190, 40)];
+//    _teamBtn.titleLabel.textAlignment = NSTextAlignmentLeft;
+//    _teamBtn.layer.borderWidth = 1.0;
+//    _teamBtn.tag = 4;
+//    [_teamBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+//    _teamBtn.titleLabel.font = [UIFont systemFontOfSize:14.0];
+//    [_teamBtn addTarget:self action:@selector(getTeamAndGroup:) forControlEvents:UIControlEventTouchUpInside];
+//    _teamBtn.layer.borderColor = [UIColor colorWithRed:153.0/255 green:181.0/255 blue:194.0/255 alpha:1.0].CGColor;
+//    
+//    arrow = [[UIImageView alloc]initWithFrame:CGRectMake(170, 8, 15, 24)];
+//    arrow.image = [UIImage imageNamed:@"downArr"];
+//    [_teamBtn addSubview:arrow];
+//    
+//    [sectionV addSubview:_teamBtn];
+//    
+//    self.t2HandlerBtn = [[UIButton alloc]initWithFrame:CGRectMake(100, 55, 190, 40)];
+//    _t2HandlerBtn.titleLabel.textAlignment = NSTextAlignmentLeft;
+//    _t2HandlerBtn.layer.borderWidth = 1.0;
+//    _t2HandlerBtn.tag = 5;
+//    [_t2HandlerBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+//    _t2HandlerBtn.titleLabel.font = [UIFont systemFontOfSize:14.0];
+//    [_t2HandlerBtn addTarget:self action:@selector(getT2User:) forControlEvents:UIControlEventTouchUpInside];
+//    _t2HandlerBtn.layer.borderColor = [UIColor colorWithRed:153.0/255 green:181.0/255 blue:194.0/255 alpha:1.0].CGColor;
+//    
+//    arrow = [[UIImageView alloc]initWithFrame:CGRectMake(170, 8, 15, 24)];
+//    arrow.image = [UIImage imageNamed:@"downArr"];
+//    [_t2HandlerBtn addSubview:arrow];
+//    
+//    [sectionV addSubview:_t2HandlerBtn];
     
     // section 3
     sectionV = [[UIView alloc]initWithFrame:CGRectMake(10, yPositon, 300, 100)];
     sectionV.layer.borderWidth = 1.0;
     yPositon += 100+15;
-    [scrollView addSubview:sectionV];
+    [self.scrollView addSubview:sectionV];
     
     normalLabel = [[UILabel alloc]initWithFrame:CGRectMake(10, 15, 130, 30)];
     normalLabel.text = @"工单状态：";
@@ -392,6 +463,9 @@
     [_levelBtn addSubview:arrow];
     
     [sectionV addSubview:_levelBtn];
+    
+    
+
     // extraBtn
     UIButton *searchBtn = [[UIButton alloc]initWithFrame:CGRectMake(50, yPositon, 98, 34)];
     [searchBtn setTitle:@"查询" forState:UIControlStateNormal];
@@ -399,59 +473,90 @@
     [searchBtn setImage:[UIImage imageNamed:@"toSearchBtn_sel"] forState:UIControlStateHighlighted];
     searchBtn.backgroundColor = [UIColor clearColor];
     [searchBtn addTarget:self action:@selector(doSearch) forControlEvents:UIControlEventTouchUpInside];
-    [scrollView addSubview:searchBtn];
+    [self.scrollView addSubview:searchBtn];
+    searchBtn.center=CGPointMake(self.view.center.x, yPositon+17);
     
-    UIButton *cancelBtn = [[UIButton alloc]initWithFrame:CGRectMake(170, yPositon, 98, 34)];
-    [cancelBtn setTitle:@"取消" forState:UIControlStateNormal];
-    [cancelBtn setImage:[UIImage imageNamed:@"cancelBtn"] forState:UIControlStateNormal];
-    [cancelBtn setImage:[UIImage imageNamed:@"cancelBtn_sel"] forState:UIControlStateHighlighted];
-    [cancelBtn addTarget:self action:@selector(resetData) forControlEvents:UIControlEventTouchUpInside];
-    cancelBtn.backgroundColor = [UIColor clearColor];
-    [scrollView addSubview:cancelBtn];
+//    UIButton *cancelBtn = [[UIButton alloc]initWithFrame:CGRectMake(170, yPositon, 98, 34)];
+//    [cancelBtn setTitle:@"取消" forState:UIControlStateNormal];
+//    [cancelBtn setImage:[UIImage imageNamed:@"cancelBtn"] forState:UIControlStateNormal];
+//    [cancelBtn setImage:[UIImage imageNamed:@"cancelBtn_sel"] forState:UIControlStateHighlighted];
+//    [cancelBtn addTarget:self action:@selector(resetData) forControlEvents:UIControlEventTouchUpInside];
+//    cancelBtn.backgroundColor = [UIColor clearColor];
+//    [self.scrollView addSubview:cancelBtn];
     
-    scrollView.contentSize = CGSizeMake(320, yPositon+60);
+    self.scrollView.contentSize = CGSizeMake(320, yPositon+60);
 }
+
 - (void)closeKeyboard {
     [self.startTimeBtn resignFirstResponder];
     [self.endTimeBtn resignFirstResponder];
+//    [self.formTitTf resignFirstResponder];
+//    [self.formNoTf resignFirstResponder];
 }
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
+    [textField resignFirstResponder];
     [self closeKeyboard];
     return YES;
 }
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    [self closeKeyboard];
+//    [self closeKeyboard];
 }
+
+- (void)textFieldDidBeginEditing:(UITextField *)textField {
+//    CGRect rec = textField.frame;
+//    CGFloat offset = 216+20 - (self.scrollView.contentSize.height - rec.size.height- rec.origin.y);// +
+//    //rec.origin.y - rec.size.height - self.mainScrollView.contentOffset.y + 20 - (self.mainScrollView.frame.size.height - 216.0);//键盘高度216
+//    [self.scrollView setContentOffset:CGPointMake(0, offset) animated:YES];
+}
+
+- (BOOL)textFieldShouldEndEditing:(UITextField *)textField {
+//    [self.scrollView setContentOffset:CGPointMake(0, self.scrollView.contentSize.height-self.scrollView.frame.size.height) animated:YES];
+    return YES;
+}
+
 
 #pragma mark - actions -
 
 
 - (void)showDateSel:(id)sender {
     UIButton *btn = (UIButton*)sender;
-    
-    UIActionSheet *actionSheet = [[UIActionSheet alloc]initWithTitle:@"\n\n\n\n\n\n\n\n\n\n\n\n\n\n" delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"确定",nil];
-    actionSheet.tag = btn.tag;
-    self.datePicker = [[RBCustomDatePickerView alloc] initWithFrame:CGRectMake(0, 0, 320, 240)];//[[UIDatePicker alloc]initWithFrame:CGRectZero];
-    //_datePicker.datePickerMode = UIDatePickerModeDate;
-    _datePicker.tag = btn.tag;
-    [actionSheet addSubview:_datePicker];
-    
-    [actionSheet showInView:SharedDelegate.window];
+    self.viewPoper=[[PhoneViewPoper alloc] init];
+    self.viewPoper.pickerView.tag=btn.tag;
+    self.datePicker=[[RBCustomDatePickerView alloc] initWithFrame:CGRectMake(0, 40, 320, 200)];//
+    self.datePicker.backgroundColor=[UIColor whiteColor];
+    [self.viewPoper.popView addSubview:self.datePicker];
+    self.viewPoper.delegate=self;
+    [self.viewPoper showPopView];
+
+//    UIActionSheet *actionSheet = [[UIActionSheet alloc]initWithTitle:@"\n\n\n\n\n\n\n\n\n\n\n\n\n\n" delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"确定",nil];
+//    actionSheet.tag = btn.tag;
+//    self.datePicker = [[RBCustomDatePickerView alloc] initWithFrame:CGRectMake(0, 0, 320, 240)];//[[UIDatePicker alloc]initWithFrame:CGRectZero];
+//    //_datePicker.datePickerMode = UIDatePickerModeDate;
+//    _datePicker.tag = btn.tag;
+//    [actionSheet addSubview:_datePicker];
+//    
+//    [actionSheet showInView:SharedDelegate.window];
 }
 - (void)showActionPicker:(id)sender {
     UIButton *btn = (UIButton*)sender;
-    
-    UIActionSheet *actionSheet = [[UIActionSheet alloc]initWithTitle:@"\n\n\n\n\n\n\n\n\n\n\n\n" delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"确定",nil];
-    
-    self.picker = [[UIPickerView alloc]initWithFrame:CGRectZero];
-    _picker.tag = btn.tag;
-    _picker.showsSelectionIndicator = YES;
-    self.picker.delegate = self;
-    self.picker.dataSource = self;
-    [actionSheet addSubview:_picker];
-    actionSheet.tag = btn.tag;
-    [actionSheet showInView:SharedDelegate.window];
+    self.viewPoper=[[PhoneViewPoper alloc] init];
+    self.viewPoper.pickerView.tag=btn.tag;
+    self.viewPoper.delegate=self;
+    [self.viewPoper showPopView];
+
+//    UIActionSheet *actionSheet = [[UIActionSheet alloc]initWithTitle:@"\n\n\n\n\n\n\n\n\n\n\n\n" delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"确定",nil];
+//    
+//    self.picker = [[UIPickerView alloc]initWithFrame:CGRectZero];
+//    _picker.tag = btn.tag;
+//    _picker.showsSelectionIndicator = YES;
+//    self.picker.delegate = self;
+//    self.picker.dataSource = self;
+//    [actionSheet addSubview:_picker];
+//    actionSheet.tag = btn.tag;
+//    [actionSheet showInView:SharedDelegate.window];
 }
+
+
 - (void)resetData {
     self.teamName = nil;
     self.teamId = nil;
@@ -462,7 +567,7 @@
     self.startDate = nil;
     self.endDate = nil;
     self.formState = nil;
-    
+
     [self.teamBtn setTitle:@"" forState:UIControlStateNormal];
     [self.t2HandlerBtn setTitle:@"" forState:UIControlStateNormal];
     [self.levelBtn setTitle:@"" forState:UIControlStateNormal];
@@ -470,14 +575,134 @@
     [self.startTimeBtn setTitle:@"" forState:UIControlStateNormal];
     [self.endTimeBtn setTitle:@"" forState:UIControlStateNormal];
     [self.stateBtn setTitle:@"" forState:UIControlStateNormal];
+    self.formTitTf.text=@"";
+    self.formNoTf.text=@"";
+}
+#pragma mark - pickerview delegate -
+
+/**
+ *  功能:点击取消按钮
+ */
+- (void)viewPoper:(PhoneViewPoper *)aViewPoper cancelBtnClicked:(id)sender{
+    [aViewPoper hidePopView];
+}
+
+/**
+ *  功能:点击完成按钮
+ */
+- (void)viewPoper:(PhoneViewPoper *)aViewPoper finishBtnClicked:(id)sender{
+    int row = [self.viewPoper.pickerView selectedRowInComponent:0];
+    if (self.viewPoper.pickerView.tag == 1 || self.viewPoper.pickerView.tag == 2) {
+        NSDate *date = self.datePicker.date;
+        //NSDate *todayDate = [NSDate date];
+        NSDateFormatter *dateFor = [[NSDateFormatter alloc]init];
+        NSString * dateStr;
+        switch (self.viewPoper.pickerView.tag) {
+            case 1:
+                [dateFor setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+                dateStr = [dateFor stringFromDate:date];
+                [self.startTimeBtn setTitle:dateStr forState:UIControlStateNormal];
+                self.startDate = date;
+                break;
+            case 2:
+                [dateFor setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+                dateStr = [dateFor stringFromDate:date];
+                [self.endTimeBtn setTitle:dateStr forState:UIControlStateNormal];
+                self.endDate = date;
+                break;
+            default:
+                break;
+        }
+    }else if (self.viewPoper.pickerView.tag == 3) {
+        NSMutableDictionary *dic = [self.categoryArr objectAtIndex:row];
+        NSString *str = [dic objectForKey:@"NetName"];
+        self.groupName = [dic objectForKey:@"NetID"];
+        [self.categoryBtn setTitle:str forState:UIControlStateNormal];
+    }else if (self.viewPoper.pickerView.tag == 4) {
+        NSMutableDictionary *dic = [self.groupArr objectAtIndex:row];
+        NSString *teamName = [dic objectForKey:@"GroupName"];
+        NSString *teamId = [dic objectForKey:@"GroupID"];
+        self.teamName = teamName;
+        self.teamId = teamId;
+        [self.teamBtn setTitle:_teamName forState:UIControlStateNormal];
+    }else if (self.viewPoper.pickerView.tag == 5) {
+        NSMutableDictionary *dic = [self.t2HandlerArr objectAtIndex:row];
+        NSString *userName = [dic objectForKey:@"UserName"];
+        NSString *userId = [dic objectForKey:@"UserID"];
+        self.t2HandlerId = userId;
+        self.t2Hanlder = userName;
+        [self.t2HandlerBtn setTitle:_t2Hanlder forState:UIControlStateNormal];
+    }else if (self.viewPoper.pickerView.tag == 6) {
+        NSMutableDictionary *dic = [self.gongdanStatsArr objectAtIndex:row];
+        NSString *str = [dic objectForKey:@"Name"];
+        self.formState = [dic objectForKey:@"ID"];
+        [self.stateBtn setTitle:str forState:UIControlStateNormal];
+    }else if (self.viewPoper.pickerView.tag == 7) {
+        NSMutableDictionary *dic = [self.gongdanLevelArr objectAtIndex:row];
+        NSString *str = [dic objectForKey:@"Name"];
+        self.level = [dic objectForKey:@"ID"];
+        [self.levelBtn setTitle:str forState:UIControlStateNormal];
+    }
+
+}
+- (NSInteger)viewPoper:(PhoneViewPoper *)aViewPoper numberOfComponentsInPickerView:(UIPickerView *)pickerView{
+    return 1;
+}
+
+/**
+ *  功能:picker view的componet的行数
+ */
+- (NSInteger)viewPoper:(PhoneViewPoper *)aViewPoper pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component{
+    if (pickerView.tag == 3) {
+        return self.categoryArr.count;
+    }else if (pickerView.tag == 4) {
+        return self.groupArr.count;
+    }else if (pickerView.tag == 5) {
+        return self.t2HandlerArr.count;
+    }
+    return 4;
+}
+
+
+-(UIView*)viewPoper:(PhoneViewPoper *)aViewPoper pickerView:(UIPickerView *)pickerView viewForRow:(NSInteger)row forComponent:(NSInteger)component{
+    NSString *str;
+    if (pickerView.tag == 3) {
+        NSMutableDictionary *dic = [self.categoryArr objectAtIndex:row];
+        str = [dic objectForKey:@"NetName"];
+        // return str;
+    }else if (pickerView.tag == 4) {
+        NSMutableDictionary *dic = [self.groupArr objectAtIndex:row];
+        str = [dic objectForKey:@"GroupName"];
+        //return str;
+    }else if (pickerView.tag == 5) {
+        NSMutableDictionary *dic = [self.t2HandlerArr objectAtIndex:row];
+        str =  [dic objectForKey:@"UserName"];
+    }else if (pickerView.tag == 6) {
+        NSMutableDictionary *dic = [self.gongdanStatsArr objectAtIndex:row];
+        str = [dic objectForKey:@"Name"];
+        //return str;
+    }else if (pickerView.tag == 7) {
+        NSMutableDictionary *dic = [self.gongdanLevelArr objectAtIndex:row];
+        str = [dic objectForKey:@"Name"];
+        //return str;
+    }else{
+        str = @"没有数据";
+    }
+    UILabel *label = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, 280, 30)];
+    label.font = [UIFont systemFontOfSize:12.0];
+    label.backgroundColor = [UIColor clearColor];
+    label.text = str;
+    return label;
+    
 }
 
 #pragma mark - pickerview delegate -
-// returns the number of 'columns' to display.
+
 - (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView {
     return 1;
 }
 
+// returns the number of 'columns' to display.
 // returns the # of rows in each component..
 - (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component {
     if (pickerView.tag == 3) {

@@ -7,7 +7,6 @@
 //
 
 #import "GDCommonRootTVC.h"
-
 @interface GDCommonRootTVC ()
 @property(nonatomic, strong)UILabel *themeLabel;
 @property(nonatomic, strong)UILabel *codeLabel;
@@ -56,33 +55,66 @@
     NSArray *arr = [resultStr componentsSeparatedByString:@"\n"];
     return arr;
 }
+
+
 - (void)updateWithDic:(NSMutableDictionary*)dic {
-    NSArray *arr = [self getTheShowInfoWithDic:dic];
-    
-    NSString *codeRangeStr = @"编号";
-    NSString *timeRangeStr = @"时限";
-    NSString *titleRangeStr = @"主题";
-    for (int i=0; i<3; i++) {
-        NSString *str = [arr objectAtIndex:i];
-        NSRange range1 = [str rangeOfString:codeRangeStr];
-        NSRange range2 = [str rangeOfString:titleRangeStr];
-        NSRange range3 = [str rangeOfString:timeRangeStr];
+    NSString *Result=[dic objectForKey:@"Result"];
+    Result=[Result stringByReplacingOccurrencesOfString:@"\r" withString:@""];
+    Result=[Result stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+    Result=[Result stringByReplacingOccurrencesOfString:@"\t" withString:@""];
+    NSData *data=[Result dataUsingEncoding:NSUTF8StringEncoding];
+    NSError *error=nil;
+    NSArray *arr= [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&error];
+    if (arr==nil) {
+        arr = [self getTheShowInfoWithDic:dic];
         
-        if (range1.location != NSNotFound) {
-            self.codeLabel.text = str;
-        }else if (range2.location != NSNotFound) {
-            self.themeLabel.text = str;
-        }else if (range3.location != NSNotFound) {
-            self.timeLabel.text = str;
+        NSString *codeRangeStr = @"编号";
+        NSString *timeRangeStr = @"时限";
+        NSString *titleRangeStr = @"主题";
+        for (int i=0; i<3; i++) {
+            NSString *str = [arr objectAtIndex:i];
+            NSRange range1 = [str rangeOfString:codeRangeStr];
+            NSRange range2 = [str rangeOfString:titleRangeStr];
+            NSRange range3 = [str rangeOfString:timeRangeStr];
+            
+            if (range1.location != NSNotFound) {
+                self.codeLabel.text = str;
+            }else if (range2.location != NSNotFound) {
+                self.themeLabel.text = str;
+            }else if (range3.location != NSNotFound) {
+                self.timeLabel.text = str;
+            }
+        }
+
+    }else{//代办工单
+        for (NSDictionary* dic in arr) {
+            if ([dic[@"Key"] isEqualToString:@"工单编号"]) {
+                self.codeLabel.text=[dic[@"Value"] decodeBase64];
+            }
+            if ([dic[@"Key"] isEqualToString:@"工单主题"]) {
+                self.themeLabel.text=[dic[@"Value"] decodeBase64];
+            }
+            if ([dic[@"Key"] isEqualToString:@"处理时限"]) {
+                self.timeLabel.text=[dic[@"Value"] decodeBase64];
+            }
+            
+        }
+        //超时状态（0:正常，1：将要超时的工单:2：已经超时的工单）
+        NSNumber *outTimeStatus=[dic objectForKey:@"OutTimeStatus"];
+        if (outTimeStatus) {
+            if (outTimeStatus.intValue!=0) {
+                self.codeLabel.textColor=[UIColor redColor];
+                self.themeLabel.textColor=[UIColor redColor];
+                self.timeLabel.textColor=[UIColor redColor];
+            }else{
+                self.codeLabel.textColor=[UIColor blackColor];
+                self.themeLabel.textColor=[UIColor blackColor];
+                self.timeLabel.textColor=[UIColor blackColor];
+                
+            }
         }
     }
     
-//    NSString *str1 = [arr objectAtIndex:0];
-//    NSString *str2 = [arr objectAtIndex:1];
-//    NSString *str3 = [arr objectAtIndex:2];
-//    self.codeLabel.text = [arr objectAtIndex:0];
-//    self.themeLabel.text = [arr objectAtIndex:1];
-//    self.timeLabel.text = [arr objectAtIndex:2];
     
     NSNumber* status = [dic objectForKey:@"FormStatus"];
     switch (status.intValue) {

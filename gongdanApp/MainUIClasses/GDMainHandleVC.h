@@ -16,9 +16,9 @@ typedef enum _FormSearchState {
 }FormSearchState;
 
 typedef enum _FormState {
-    FormState_todo = 2,
-    FormState_doing = 3,
-    FormState_done = 4
+    FormState_todo = 2,//未受理理
+    FormState_doing = 3,//已受理
+    FormState_done = 4//已办功能
 }FormState;
 
 typedef enum _FormType{

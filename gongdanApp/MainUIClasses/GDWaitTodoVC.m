@@ -11,7 +11,7 @@
 #import "GDMainHandleVC.h"
 #import "GDCommonRootTVC.h"
 #import "GDLoginVC.h"
-
+#import "GDServiceV2.h"
 @interface GDWaitTodoVC ()
 @property(nonatomic, strong)GDListPageOperationView *operationView;
 @property(nonatomic, strong)UITableView *tableView;
@@ -41,12 +41,12 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
-    GDLoginVC *loginVC = [[GDLoginVC alloc]init];
-    [self presentViewController:loginVC animated:NO completion:^{
-        //
-    }];
-    
+    if (SharedDelegate.userZhName==nil||[SharedDelegate.userZhName isEqualToString:@""]) {
+        GDLoginVC *loginVC = [[GDLoginVC alloc]init];
+        [self presentViewController:loginVC animated:NO completion:^{
+            //
+        }];
+    }
     CGRect rec = self.view.bounds;
     rec.size.height -= 50;
     self.tableView = [[UITableView alloc]initWithFrame:rec];
@@ -71,10 +71,11 @@
     self.dataArr = [NSMutableArray array];
     [self initTtitle];
     
-    [self refreshData];
+    [self getData];
 }
 - (void)viewWillAppear:(BOOL)animated {
-    [self refreshData];
+        [self getData];
+
 }
 
 - (void)initTtitle {
@@ -85,7 +86,7 @@
     
     UIButton *refreshBtn = [[UIButton alloc]initWithFrame:CGRectMake(270, 11, 22, 22)];
     [refreshBtn setImage:[UIImage imageNamed:@"refresh"] forState:UIControlStateNormal];
-    [refreshBtn addTarget:self action:@selector(refreshData) forControlEvents:UIControlEventTouchUpInside];
+    [refreshBtn addTarget:self action:@selector(getData) forControlEvents:UIControlEventTouchUpInside];
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithCustomView:refreshBtn];
     CGRect rec = refreshBtn.frame;
@@ -106,6 +107,51 @@
     }
 }
 
+
+
+- (void)getData{
+    if (SharedDelegate.userZhName==nil||[SharedDelegate.userZhName isEqualToString:@""]) {
+        return;
+    }
+    NSNumber *startNo = __INT(1+(_currentPageIndex-1)*5);
+    NSNumber *endNo = __INT(startNo.intValue+4);
+    if (endNo.intValue >= _operationView.totalNum && _operationView.totalNum > 0) {
+        endNo = __INT(_operationView.totalNum);
+    }
+    
+    NSMutableDictionary *dic = [NSMutableDictionary dictionary];
+    [dic setSafeObject:__INT(1) forKey:@"FormState"];
+    [dic setSafeObject:__INT(1) forKey:@"FormStateType"];
+    [dic setSafeObject:SharedDelegate.loginedUserName forKey:@"Dealor"];
+    [dic setSafeObject:self.startDate forKey:@"StartTime"]; //@"2013-02-01 12:39:10" forKey:@"StartTime"];//
+    [dic setSafeObject:self.endDate forKey:@"EndTime"];
+    [dic setSafeObject:startNo forKey:@"StartNo"];
+    [dic setSafeObject:endNo forKey:@"EndNo"];
+    [dic setSafeObject:@(-1) forKey:@"NetType"];
+    [dic setSafeObject:@(-1) forKey:@"Subject"];
+    [dic setSafeObject:@"" forKey:@"FormNo"];
+    [dic setSafeObject:@"" forKey:@"FormTitle"];
+    if (SharedDelegate.loginedUserName!=nil) {
+        [dic setObject:SharedDelegate.loginedUserName forKey:@"Dealor"];
+    }
+
+    
+    [self showLoading];
+    [GDServiceV2 requestFunc:@"wo_get_form_list" WithParam:dic withCompletBlcok:^(id reObj,NSError* error) {
+        [self hideLoading];
+        if ([reObj isKindOfClass:[NSArray class]]) {
+            // 正常返回
+            self.dataArr = reObj;
+            if (self.dataArr.count > 0 && startNo.intValue == 1) {  // 加载第一页的时候初始化获取总数据
+                NSMutableDictionary* dic = [self.dataArr safeObjectAtIndex:0];
+                NSNumber *totalCount = [dic objectForKey:@"Count"];
+                self.operationView.totalNum = totalCount.intValue;
+            }
+            [self.operationView updateWithCurrentPage:self.currentPageIndex];
+            [self.tableView reloadData];
+        }
+    }];
+}
 - (void)refreshData {
     NSNumber *startNo = __INT(1+(_currentPageIndex-1)*5);
     NSNumber *endNo = __INT(startNo.intValue+4);
@@ -166,7 +212,7 @@
 - (void)upSearchWithStartDate:(NSString*)startDate endDate:(NSString*)endDate {
     self.startDate = startDate;
     self.endDate = endDate;
-    [self refreshData];
+    [self getData];
 }
 - (void)GDListPage:(GDListPageOperationView*)listPage operationAction:(GDListPageOperationTypeTag)tag {
     int totalPage = ceil(listPage.totalNum/5.0);
@@ -191,7 +237,7 @@
             break;
     }
     self.currentPageIndex = self.currentPageIndex >= 1 ? _currentPageIndex : 1;
-    [self refreshData];
+    [self getData];
 }
 #pragma mark - tableview delegate/datasource -
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {

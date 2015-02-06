@@ -88,10 +88,15 @@
             NSString *result = [dic objectForKey:@"Result"];
             if ([result isEqualToString:@"0"]) {
                 SharedDelegate.loginedUserName = self.userNameTF.text;
+                SharedDelegate.userZhName=dic[@"userZhName"];
+                SharedDelegate.userTelNum=[NSString stringWithFormat:@"%@",dic[@"userTelNum"]];
                 [self saveInfoToLocal];
-                //[self getTeamAndGroup:nil];
+//                [self getTeamAndGroup:nil];
                 //[self closeSelf];
                 [self getCurrentGroup];
+                [self getReject];
+                [self getFreshTime];//只有代办有
+                [SharedDelegate mqtt];
             }else if ([result isEqualToString:@"1"]){
                 [self hideLoading];
                 UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"登录失败" message:@"用户不存在" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil];
@@ -143,10 +148,46 @@
         NSDictionary *dic = reObj;
         SharedDelegate.userGroup = [dic objectForKey:@"Group"];
         SharedDelegate.userGroupId = [dic objectForKey:@"GroupNo"];
+        SharedDelegate.dept=[dic objectForKey:@"Dept"];
+        SharedDelegate.company=[dic objectForKey:@"Company"];
         [self closeSelf];
     }];
     
     //http://10.19.116.148:8899/alarm/get_user_group/?{"Type":0,"Operator":"dw2_jiaminggang","Flag":0,"CityID":-1,"Group":"1"}
+}
+
+-(void)getReject{
+    [self showLoading];
+    NSMutableDictionary *dic = [NSMutableDictionary dictionary];
+    [dic setSafeObject:SharedDelegate.loginedUserName forKey:@"Operator"];
+    [GDService requestWithFunctionName:@"get_user_info_reject" pramaDic:dic requestMethod:@"POST" completion:^(id reObj) {
+        [self hideLoading];
+        if ([reObj isKindOfClass:[NSDictionary class]]) {
+            NSDictionary *dic = (NSDictionary*)reObj;
+            SharedDelegate.reject=[dic[@"Flag"] boolValue];
+        }
+        [self closeSelf];
+    }];
+
+}
+
+- (void)getFreshTime{
+    [self showLoading];
+    NSMutableDictionary *dic = [NSMutableDictionary dictionary];
+    [dic setSafeObject:@1 forKey:@"FrontFlag"];
+    [dic setSafeObject:@47 forKey:@"TypeID"];
+
+    [GDService requestWithFunctionName:@"get_sys_dict" pramaDic:dic requestMethod:@"POST" completion:^(id reObj) {
+        [self hideLoading];
+        if ([reObj isKindOfClass:[NSArray class]]) {
+            NSArray *arr = reObj;
+            NSDictionary *dic = [arr safeObjectAtIndex:0];
+            SharedDelegate.todoFreshTime = [dic objectForKey:@"ID"];
+            [SharedDelegate freshTimer];
+        }
+        [self closeSelf];
+    }];
+
 }
 #pragma mark - actions -
 - (void)closeSelf {

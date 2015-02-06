@@ -7,6 +7,28 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3F40EDC21A3F3C2200E30496 /* temp.html in Resources */ = {isa = PBXBuildFile; fileRef = 3F40EDC11A3F3C2200E30496 /* temp.html */; };
+		3F40EDCB1A408FF400E30496 /* GDWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F40EDCA1A408FF400E30496 /* GDWebView.m */; };
+		3F96CD0C1A46DDBD0080A51E /* PhoneViewPoper.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F96CD0B1A46DDBD0080A51E /* PhoneViewPoper.m */; };
+		3F96CD0F1A46DDF10080A51E /* OTSViewPoper.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F96CD0E1A46DDF00080A51E /* OTSViewPoper.m */; };
+		3F96CD121A46DE370080A51E /* OTSPickerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F96CD111A46DE370080A51E /* OTSPickerView.m */; };
+		3F96CD181A46E0BF0080A51E /* actionsheet_bg@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F96CD131A46E0BF0080A51E /* actionsheet_bg@2x.png */; };
+		3F96CD191A46E0BF0080A51E /* actionsheet_cancel_sel@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F96CD141A46E0BF0080A51E /* actionsheet_cancel_sel@2x.png */; };
+		3F96CD1A1A46E0BF0080A51E /* actionsheet_cancel@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F96CD151A46E0BF0080A51E /* actionsheet_cancel@2x.png */; };
+		3F96CD1B1A46E0BF0080A51E /* actionsheet_confirm_sel@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F96CD161A46E0BF0080A51E /* actionsheet_confirm_sel@2x.png */; };
+		3F96CD1C1A46E0BF0080A51E /* actionsheet_confirm@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F96CD171A46E0BF0080A51E /* actionsheet_confirm@2x.png */; };
+		3FA77E641A4882BF0097377A /* equitFrame@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3FA77E631A4882BF0097377A /* equitFrame@2x.png */; };
+		3FA77E661A489EC00097377A /* gaojingheshi@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3FA77E651A489EC00097377A /* gaojingheshi@2x.png */; };
+		3FA77E681A48A0E30097377A /* yuyin@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3FA77E671A48A0E30097377A /* yuyin@2x.png */; };
+		3FA77E6A1A48A8560097377A /* searchviewbtn@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3FA77E691A48A8560097377A /* searchviewbtn@2x.png */; };
+		3FB881881A4D91DA0078F4E6 /* GDTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FB881871A4D91DA0078F4E6 /* GDTextView.m */; };
+		3FC383DE1A3BF81100FDBF39 /* iflyMSC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3FC383DD1A3BF81100FDBF39 /* iflyMSC.framework */; };
+		3FC383E01A3BF84100FDBF39 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3FC383DF1A3BF84100FDBF39 /* AVFoundation.framework */; };
+		3FC383E21A3BF85000FDBF39 /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3FC383E11A3BF85000FDBF39 /* AddressBook.framework */; };
+		3FC383E41A3BF86700FDBF39 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3FC383E31A3BF86700FDBF39 /* AudioToolbox.framework */; };
+		3FC383E81A3BFB5400FDBF39 /* FlySpeech.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC383E71A3BFB5400FDBF39 /* FlySpeech.m */; };
+		3FC383EB1A3C7CBB00FDBF39 /* GDServiceV2.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC383EA1A3C7CBB00FDBF39 /* GDServiceV2.m */; };
+		DC38C9EFC114E5D6B9B4F7A3 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 75CD9FEAD04B91A8F9ED2B3C /* libPods.a */; };
 		FD0E3B2A18BC33FC0029D89E /* GDAppointVC.m in Sources */ = {isa = PBXBuildFile; fileRef = FD0E3B2818BC33FC0029D89E /* GDAppointVC.m */; };
 		FD0E3B2B18BC33FC0029D89E /* GDAppointVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = FD0E3B2918BC33FC0029D89E /* GDAppointVC.xib */; };
 		FD12EB1818BE42AA00FD3D85 /* GDService.m in Sources */ = {isa = PBXBuildFile; fileRef = FD12EB1718BE42AA00FD3D85 /* GDService.m */; };
@@ -153,6 +175,37 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0C4B34C93856B7DAB5FC4F5C /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
+		3B1532FFBC475154A1EBA5D4 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
+		3F40EDC11A3F3C2200E30496 /* temp.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = temp.html; sourceTree = "<group>"; };
+		3F40EDC91A408FF400E30496 /* GDWebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GDWebView.h; sourceTree = "<group>"; };
+		3F40EDCA1A408FF400E30496 /* GDWebView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GDWebView.m; sourceTree = "<group>"; };
+		3F96CD0A1A46DDBD0080A51E /* PhoneViewPoper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhoneViewPoper.h; sourceTree = "<group>"; };
+		3F96CD0B1A46DDBD0080A51E /* PhoneViewPoper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PhoneViewPoper.m; sourceTree = "<group>"; };
+		3F96CD0D1A46DDF00080A51E /* OTSViewPoper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTSViewPoper.h; sourceTree = "<group>"; };
+		3F96CD0E1A46DDF00080A51E /* OTSViewPoper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTSViewPoper.m; sourceTree = "<group>"; };
+		3F96CD101A46DE370080A51E /* OTSPickerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTSPickerView.h; sourceTree = "<group>"; };
+		3F96CD111A46DE370080A51E /* OTSPickerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTSPickerView.m; sourceTree = "<group>"; };
+		3F96CD131A46E0BF0080A51E /* actionsheet_bg@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "actionsheet_bg@2x.png"; sourceTree = "<group>"; };
+		3F96CD141A46E0BF0080A51E /* actionsheet_cancel_sel@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "actionsheet_cancel_sel@2x.png"; sourceTree = "<group>"; };
+		3F96CD151A46E0BF0080A51E /* actionsheet_cancel@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "actionsheet_cancel@2x.png"; sourceTree = "<group>"; };
+		3F96CD161A46E0BF0080A51E /* actionsheet_confirm_sel@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "actionsheet_confirm_sel@2x.png"; sourceTree = "<group>"; };
+		3F96CD171A46E0BF0080A51E /* actionsheet_confirm@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "actionsheet_confirm@2x.png"; sourceTree = "<group>"; };
+		3FA77E631A4882BF0097377A /* equitFrame@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "equitFrame@2x.png"; sourceTree = "<group>"; };
+		3FA77E651A489EC00097377A /* gaojingheshi@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "gaojingheshi@2x.png"; sourceTree = "<group>"; };
+		3FA77E671A48A0E30097377A /* yuyin@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "yuyin@2x.png"; sourceTree = "<group>"; };
+		3FA77E691A48A8560097377A /* searchviewbtn@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "searchviewbtn@2x.png"; sourceTree = "<group>"; };
+		3FB881861A4D91DA0078F4E6 /* GDTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GDTextView.h; sourceTree = "<group>"; };
+		3FB881871A4D91DA0078F4E6 /* GDTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GDTextView.m; sourceTree = "<group>"; };
+		3FC383DD1A3BF81100FDBF39 /* iflyMSC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = iflyMSC.framework; sourceTree = "<group>"; };
+		3FC383DF1A3BF84100FDBF39 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		3FC383E11A3BF85000FDBF39 /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = System/Library/Frameworks/AddressBook.framework; sourceTree = SDKROOT; };
+		3FC383E31A3BF86700FDBF39 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		3FC383E61A3BFB5400FDBF39 /* FlySpeech.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlySpeech.h; sourceTree = "<group>"; };
+		3FC383E71A3BFB5400FDBF39 /* FlySpeech.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FlySpeech.m; sourceTree = "<group>"; };
+		3FC383E91A3C7CBB00FDBF39 /* GDServiceV2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GDServiceV2.h; sourceTree = "<group>"; };
+		3FC383EA1A3C7CBB00FDBF39 /* GDServiceV2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GDServiceV2.m; sourceTree = "<group>"; };
+		75CD9FEAD04B91A8F9ED2B3C /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		FD0E3B2718BC33FC0029D89E /* GDAppointVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GDAppointVC.h; sourceTree = "<group>"; };
 		FD0E3B2818BC33FC0029D89E /* GDAppointVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GDAppointVC.m; sourceTree = "<group>"; };
 		FD0E3B2918BC33FC0029D89E /* GDAppointVC.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GDAppointVC.xib; sourceTree = "<group>"; };
@@ -332,14 +385,19 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FD59D13218BB742500E7F3A0 /* CFNetwork.framework in Frameworks */,
+				3FC383E01A3BF84100FDBF39 /* AVFoundation.framework in Frameworks */,
+				3FC383E41A3BF86700FDBF39 /* AudioToolbox.framework in Frameworks */,
 				FD59D13018BB741A00E7F3A0 /* SystemConfiguration.framework in Frameworks */,
+				3FC383E21A3BF85000FDBF39 /* AddressBook.framework in Frameworks */,
+				FD59D13218BB742500E7F3A0 /* CFNetwork.framework in Frameworks */,
 				FD59D12E18BB740E00E7F3A0 /* MobileCoreServices.framework in Frameworks */,
 				FD59D12C18BB740500E7F3A0 /* libz.1.2.5.dylib in Frameworks */,
 				FDCD8B9618B5ED9200B4B2D9 /* CoreGraphics.framework in Frameworks */,
 				FDCD8B9A18B5ED9200B4B2D9 /* CoreData.framework in Frameworks */,
 				FDCD8B9818B5ED9200B4B2D9 /* UIKit.framework in Frameworks */,
+				3FC383DE1A3BF81100FDBF39 /* iflyMSC.framework in Frameworks */,
 				FDCD8B9418B5ED9200B4B2D9 /* Foundation.framework in Frameworks */,
+				DC38C9EFC114E5D6B9B4F7A3 /* libPods.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -357,6 +415,24 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2CE965450D7B6AD82F3BA368 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				3B1532FFBC475154A1EBA5D4 /* Pods.debug.xcconfig */,
+				0C4B34C93856B7DAB5FC4F5C /* Pods.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		3FC383E51A3BFB3000FDBF39 /* Fly */ = {
+			isa = PBXGroup;
+			children = (
+				3FC383E61A3BFB5400FDBF39 /* FlySpeech.h */,
+				3FC383E71A3BFB5400FDBF39 /* FlySpeech.m */,
+			);
+			path = Fly;
+			sourceTree = "<group>";
+		};
 		FD3406B918B65C1400EB4ABB /* MainUIClasses */ = {
 			isa = PBXGroup;
 			children = (
@@ -375,6 +451,11 @@
 				FDC11D3D18C36BC100167DDD /* GDLoginVC.xib */,
 				FDCEA93318B9987B0080D866 /* GDMainHandleVC.h */,
 				FDCEA93418B9987B0080D866 /* GDMainHandleVC.m */,
+				3FB881861A4D91DA0078F4E6 /* GDTextView.h */,
+				3FB881871A4D91DA0078F4E6 /* GDTextView.m */,
+				3F40EDC91A408FF400E30496 /* GDWebView.h */,
+				3F40EDCA1A408FF400E30496 /* GDWebView.m */,
+				3F40EDC11A3F3C2200E30496 /* temp.html */,
 				FDCEA93518B9987B0080D866 /* GDMainHandleVC.xib */,
 			);
 			path = MainUIClasses;
@@ -458,6 +539,7 @@
 				FDCD8BB818B5ED9200B4B2D9 /* gongdanAppTests */,
 				FDCD8B9218B5ED9200B4B2D9 /* Frameworks */,
 				FDCD8B9118B5ED9200B4B2D9 /* Products */,
+				2CE965450D7B6AD82F3BA368 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -473,6 +555,9 @@
 		FDCD8B9218B5ED9200B4B2D9 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3FC383E31A3BF86700FDBF39 /* AudioToolbox.framework */,
+				3FC383E11A3BF85000FDBF39 /* AddressBook.framework */,
+				3FC383DF1A3BF84100FDBF39 /* AVFoundation.framework */,
 				FD59D13118BB742500E7F3A0 /* CFNetwork.framework */,
 				FD59D12F18BB741A00E7F3A0 /* SystemConfiguration.framework */,
 				FD59D12D18BB740E00E7F3A0 /* MobileCoreServices.framework */,
@@ -482,6 +567,7 @@
 				FDCD8B9718B5ED9200B4B2D9 /* UIKit.framework */,
 				FDCD8B9918B5ED9200B4B2D9 /* CoreData.framework */,
 				FDCD8BB118B5ED9200B4B2D9 /* XCTest.framework */,
+				75CD9FEAD04B91A8F9ED2B3C /* libPods.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -489,6 +575,7 @@
 		FDCD8B9B18B5ED9200B4B2D9 /* gongdanApp */ = {
 			isa = PBXGroup;
 			children = (
+				3FC383DD1A3BF81100FDBF39 /* iflyMSC.framework */,
 				FDCD8BC918B5F54500B4B2D9 /* Based */,
 				FD3406B918B65C1400EB4ABB /* MainUIClasses */,
 				FDCD8BA418B5ED9200B4B2D9 /* AppDelegate.h */,
@@ -533,6 +620,7 @@
 		FDCD8BC918B5F54500B4B2D9 /* Based */ = {
 			isa = PBXGroup;
 			children = (
+				3FC383E51A3BFB3000FDBF39 /* Fly */,
 				FDAD51F318C620340045C803 /* CTMBase64 */,
 				FD4868A318C45EBD00706AF6 /* MBProgressHUD */,
 				FD59D12718BB734A00E7F3A0 /* Reachability */,
@@ -544,6 +632,8 @@
 				FD3406C718B6668800EB4ABB /* GDBasedVC.m */,
 				FD12EB1618BE42AA00FD3D85 /* GDService.h */,
 				FD12EB1718BE42AA00FD3D85 /* GDService.m */,
+				3FC383E91A3C7CBB00FDBF39 /* GDServiceV2.h */,
+				3FC383EA1A3C7CBB00FDBF39 /* GDServiceV2.m */,
 				FD2C238F18FEE54D00414157 /* MXSCycleScrollView.h */,
 				FD2C239018FEE54D00414157 /* MXSCycleScrollView.m */,
 				FD2C239118FEE54D00414157 /* RBCustomDatePickerView.h */,
@@ -555,6 +645,15 @@
 		FDCEA85718B86C0B0080D866 /* imgRes */ = {
 			isa = PBXGroup;
 			children = (
+				3FA77E691A48A8560097377A /* searchviewbtn@2x.png */,
+				3FA77E631A4882BF0097377A /* equitFrame@2x.png */,
+				3F96CD131A46E0BF0080A51E /* actionsheet_bg@2x.png */,
+				3F96CD141A46E0BF0080A51E /* actionsheet_cancel_sel@2x.png */,
+				3F96CD151A46E0BF0080A51E /* actionsheet_cancel@2x.png */,
+				3F96CD161A46E0BF0080A51E /* actionsheet_confirm_sel@2x.png */,
+				3F96CD171A46E0BF0080A51E /* actionsheet_confirm@2x.png */,
+				3FA77E651A489EC00097377A /* gaojingheshi@2x.png */,
+				3FA77E671A48A0E30097377A /* yuyin@2x.png */,
 				FD21D30518C76D6B00A43768 /* Icon.png */,
 				FD378C4918D1A0ED003288A8 /* copyBtn_sel@2x.png */,
 				FD378C4A18D1A0ED003288A8 /* copyBtn@2x.png */,
@@ -643,6 +742,12 @@
 		FDCEA92C18B884540080D866 /* CommonParts */ = {
 			isa = PBXGroup;
 			children = (
+				3F96CD101A46DE370080A51E /* OTSPickerView.h */,
+				3F96CD111A46DE370080A51E /* OTSPickerView.m */,
+				3F96CD0D1A46DDF00080A51E /* OTSViewPoper.h */,
+				3F96CD0E1A46DDF00080A51E /* OTSViewPoper.m */,
+				3F96CD0A1A46DDBD0080A51E /* PhoneViewPoper.h */,
+				3F96CD0B1A46DDBD0080A51E /* PhoneViewPoper.m */,
 				FDAD51F018C60B760045C803 /* NSString+Base64Decode.h */,
 				FDAD51F118C60B760045C803 /* NSString+Base64Decode.m */,
 				FDCEA92D18B8848E0080D866 /* GDListPageOperationView.h */,
@@ -662,9 +767,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = FDCD8BC218B5ED9200B4B2D9 /* Build configuration list for PBXNativeTarget "gongdanApp" */;
 			buildPhases = (
+				02A235718F785A7BBC5E4E16 /* Check Pods Manifest.lock */,
 				FDCD8B8C18B5ED9200B4B2D9 /* Sources */,
 				FDCD8B8D18B5ED9200B4B2D9 /* Frameworks */,
 				FDCD8B8E18B5ED9200B4B2D9 /* Resources */,
+				715FA57D3791FCF4F4E559E2 /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -702,9 +809,6 @@
 				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = xuexiang;
 				TargetAttributes = {
-					FDCD8B8F18B5ED9200B4B2D9 = {
-						DevelopmentTeam = MW28KKE748;
-					};
 					FDCD8BAF18B5ED9200B4B2D9 = {
 						TestTargetID = FDCD8B8F18B5ED9200B4B2D9;
 					};
@@ -739,8 +843,10 @@
 				FD21D30718C76D6B00A43768 /* Icon.png in Resources */,
 				FDCD8BA018B5ED9200B4B2D9 /* InfoPlist.strings in Resources */,
 				FD2841A118BCF966008CF1A4 /* preDeal_sel.png in Resources */,
+				3FA77E6A1A48A8560097377A /* searchviewbtn@2x.png in Resources */,
 				FD48CB7118C4B0A60000E40F /* operBtn@2x.png in Resources */,
 				FD378C5418D1A0ED003288A8 /* handle_sel@2x.png in Resources */,
+				3F96CD1B1A46E0BF0080A51E /* actionsheet_confirm_sel@2x.png in Resources */,
 				FD378C5318D1A0ED003288A8 /* handle@2x.png in Resources */,
 				FD0E3B2B18BC33FC0029D89E /* GDAppointVC.xib in Resources */,
 				FD2B2C6018C70C0A00778A60 /* quit@2x.png in Resources */,
@@ -761,6 +867,7 @@
 				FD28415818BCD8D9008CF1A4 /* cancelBtn_sel@2x.png in Resources */,
 				FD2841A218BCF966008CF1A4 /* preDeal@2x.png in Resources */,
 				FDC11D4B18C36CEB00167DDD /* loginBtn@2x.png in Resources */,
+				3F96CD1A1A46E0BF0080A51E /* actionsheet_cancel@2x.png in Resources */,
 				FD2B2C5118C6BD3200778A60 /* back_sel@2x.png in Resources */,
 				FDC11D4C18C36CEB00167DDD /* loginSepLine@2x.png in Resources */,
 				FDCD8BAB18B5ED9200B4B2D9 /* Images.xcassets in Resources */,
@@ -793,24 +900,31 @@
 				FD28419E18BCF966008CF1A4 /* dealInputFrame@2x.png in Resources */,
 				FD28416118BCE05B008CF1A4 /* refresh@2x.png in Resources */,
 				FD2B2C5518C6BD3200778A60 /* upload_sel@2x.png in Resources */,
+				3FA77E661A489EC00097377A /* gaojingheshi@2x.png in Resources */,
+				3FA77E641A4882BF0097377A /* equitFrame@2x.png in Resources */,
 				FD28416818BCE62E008CF1A4 /* backBtn@2x.png in Resources */,
 				FD28419D18BCF966008CF1A4 /* copy@2x.png in Resources */,
 				FD28416318BCE05B008CF1A4 /* topbar@2x.png in Resources */,
 				FD28417D18BCF3A6008CF1A4 /* item2@2x.png in Resources */,
 				FD28416418BCE05B008CF1A4 /* topSepLine.png in Resources */,
 				FD28419218BCF525008CF1A4 /* reject@2x.png in Resources */,
+				3FA77E681A48A0E30097377A /* yuyin@2x.png in Resources */,
 				FD28418E18BCF525008CF1A4 /* detail@2x.png in Resources */,
 				FD378C5118D1A0ED003288A8 /* copyBtn_sel@2x.png in Resources */,
 				FDC11D4718C36CEB00167DDD /* login_auto_sel@2x.png in Resources */,
+				3F96CD1C1A46E0BF0080A51E /* actionsheet_confirm@2x.png in Resources */,
 				FDCEA92518B86FC20080D866 /* tab_bg@2x.png in Resources */,
 				FD28417618BCF0FB008CF1A4 /* form_temp@2x.png in Resources */,
 				FD28416618BCE592008CF1A4 /* searchBtn@2x.png in Resources */,
 				FD2B2C5918C6F5CA00778A60 /* Default-568h@2x.png in Resources */,
+				3F96CD191A46E0BF0080A51E /* actionsheet_cancel_sel@2x.png in Resources */,
 				FD28415118BCCF82008CF1A4 /* selectSign_sel@2x.png in Resources */,
 				FD2B2C5F18C70C0A00778A60 /* quit_sel@2x.png in Resources */,
 				FD28417818BCF2D7008CF1A4 /* cell_bg_normal@2x.png in Resources */,
 				FD28419F18BCF966008CF1A4 /* photo_sel.png in Resources */,
+				3F96CD181A46E0BF0080A51E /* actionsheet_bg@2x.png in Resources */,
 				FD28418A18BCF525008CF1A4 /* accept@2x.png in Resources */,
+				3F40EDC21A3F3C2200E30496 /* temp.html in Resources */,
 				FDCEA92B18B87DF00080D866 /* normalCell_bg@2x.png in Resources */,
 				FD875F6E18C1A5710015E228 /* downArr.png in Resources */,
 				FD28415C18BCD8D9008CF1A4 /* submit@2x.png in Resources */,
@@ -832,6 +946,39 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		02A235718F785A7BBC5E4E16 /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		715FA57D3791FCF4F4E559E2 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		FDCD8B8C18B5ED9200B4B2D9 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -843,16 +990,21 @@
 				FD59D12018BB733F00E7F3A0 /* ASIDataCompressor.m in Sources */,
 				FD12EB1818BE42AA00FD3D85 /* GDService.m in Sources */,
 				FDCD8BA618B5ED9200B4B2D9 /* AppDelegate.m in Sources */,
+				3F96CD0F1A46DDF10080A51E /* OTSViewPoper.m in Sources */,
 				FD48CB7818C505880000E40F /* SearchResultVC.m in Sources */,
 				FD2C239418FEE54D00414157 /* RBCustomDatePickerView.m in Sources */,
 				FD3406C518B65CD600EB4ABB /* GDSearchVC.m in Sources */,
+				3FC383E81A3BFB5400FDBF39 /* FlySpeech.m in Sources */,
 				FDAD51F718C620340045C803 /* GTMBase64.m in Sources */,
 				FD3406C218B65CBC00EB4ABB /* GDDoneVC.m in Sources */,
 				FDCD8BCC18B5F59600B4B2D9 /* GDBasedNC.m in Sources */,
 				FDCEA93618B9987B0080D866 /* GDMainHandleVC.m in Sources */,
+				3FC383EB1A3C7CBB00FDBF39 /* GDServiceV2.m in Sources */,
 				FD59D11F18BB733F00E7F3A0 /* ASIAuthenticationDialog.m in Sources */,
 				FD4868A618C45EBD00706AF6 /* MBProgressHUD.m in Sources */,
+				3FB881881A4D91DA0078F4E6 /* GDTextView.m in Sources */,
 				FD3406BF18B65C9C00EB4ABB /* GDCopyVC.m in Sources */,
+				3F40EDCB1A408FF400E30496 /* GDWebView.m in Sources */,
 				FDCD8BA218B5ED9200B4B2D9 /* main.m in Sources */,
 				FDCEA92F18B8848E0080D866 /* GDListPageOperationView.m in Sources */,
 				FD3406C818B6668800EB4ABB /* GDBasedVC.m in Sources */,
@@ -862,7 +1014,9 @@
 				FD59D12318BB733F00E7F3A0 /* ASIFormDataRequest.m in Sources */,
 				FD59D12A18BB734A00E7F3A0 /* Reachability.m in Sources */,
 				FDCEA93218B97C750080D866 /* GDCommonRootTVC.m in Sources */,
+				3F96CD121A46DE370080A51E /* OTSPickerView.m in Sources */,
 				FD59D12118BB733F00E7F3A0 /* ASIDataDecompressor.m in Sources */,
+				3F96CD0C1A46DDBD0080A51E /* PhoneViewPoper.m in Sources */,
 				FDAD51F218C60B760045C803 /* NSString+Base64Decode.m in Sources */,
 				FD59D12518BB733F00E7F3A0 /* ASIInputStream.m in Sources */,
 				FD59D12618BB733F00E7F3A0 /* ASINetworkQueue.m in Sources */,
@@ -985,32 +1139,54 @@
 		};
 		FDCD8BC318B5ED9200B4B2D9 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3B1532FFBC475154A1EBA5D4 /* Pods.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/gongdanApp",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "gongdanApp/gongdanApp-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "DEBUG=1";
 				INFOPLIST_FILE = "gongdanApp/gongdanApp-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Users/harbin6666/Desktop/MQTTKit-master/build/Debug-iphoneos",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "df45217e-d565-465d-82c0-b45e8887e452";
+				USER_HEADER_SEARCH_PATHS = "${PROJECT_DIR}/${PROJECT_NAME}/LibsHeaders/";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
 		};
 		FDCD8BC418B5ED9200B4B2D9 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0C4B34C93856B7DAB5FC4F5C /* Pods.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Inspur Communication Information System Limited";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Inspur Communication Information System Limited";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/gongdanApp",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "gongdanApp/gongdanApp-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "DEBUG=1";
 				INFOPLIST_FILE = "gongdanApp/gongdanApp-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Users/harbin6666/Desktop/MQTTKit-master/build/Debug-iphoneos",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "df45217e-d565-465d-82c0-b45e8887e452";
+				USER_HEADER_SEARCH_PATHS = "${PROJECT_DIR}/${PROJECT_NAME}/LibsHeaders/";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

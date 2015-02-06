@@ -11,7 +11,6 @@
 #import <CommonCrypto/CommonDigest.h>
 #import "ASIFormDataRequest.h"
 
-#define host @"http://120.202.255.70:8080/alarmtest/" //@"http://120.202.255.70:8080/alarm/"//
 
 @implementation GDService
 
@@ -24,7 +23,7 @@
 
 + (void)requestWithFunctionName:(NSString*)functionName uploadData:(NSData*)uploadData completion:(comp)completion{
     
-    NSString *urlStr = [host stringByAppendingString:[NSString stringWithFormat:@"%@/",functionName]];
+    NSString *urlStr = [host1 stringByAppendingString:[NSString stringWithFormat:@"%@/",functionName]];
     
     ASIFormDataRequest *request = [ASIFormDataRequest requestWithURL: [NSURL URLWithString:urlStr]];
     [request setPostValue: @"MyName" forKey: @"name"];
@@ -54,8 +53,8 @@
 @implementation GDHttpRequest
 @synthesize comBlock = _comBlock;
 - (id)initReqWithFunctionName:(NSString *)funcionName pramaDic:(NSMutableDictionary*)pramaDic requestMethod:(NSString*)method completion:(comp)completion{
-    NSString *urlStr = [host stringByAppendingString:[NSString stringWithFormat:@"%@/",funcionName]];
-
+    NSString *urlStr = [host1 stringByAppendingString:[NSString stringWithFormat:@"%@/",funcionName]];
+    [self addRequestHeader:@"text/json" value:@"Content-Type"];
     if ([method isEqualToString:@"GET"] || method == nil) {
         urlStr = [urlStr stringByAppendingString:@"?7B"];
         int i = 1;
@@ -84,7 +83,7 @@
             self.functionName = funcionName;
             self.pramaDic = pramaDic;
             self.comBlock = completion;
-            self.timeOutSeconds = 90;
+            self.timeOutSeconds = 30;
         }
         return self;
     }else{
@@ -117,7 +116,7 @@
             self.functionName = funcionName;
             self.pramaDic = pramaDic;
             self.comBlock = completion;
-            self.timeOutSeconds = 90;
+            self.timeOutSeconds = 30;
         }
         return self;
     }

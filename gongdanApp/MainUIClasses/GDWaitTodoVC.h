@@ -15,5 +15,5 @@
 #import "ASIHTTPRequest.h"
 
 @interface GDWaitTodoVC : GDBasedVC<UITableViewDataSource,UITableViewDelegate, GDListPageOperationDelegate, ASIHTTPRequestDelegate, GDUpSearchDelegate>
-
+- (void)getData;
 @end

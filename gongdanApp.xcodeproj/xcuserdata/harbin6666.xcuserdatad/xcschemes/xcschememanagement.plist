@@ -9,9 +9,19 @@
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
+		<key>runscript.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>2</integer>
+		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
+		<key>3F5A06201A3A18FF0036A7FD</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>FDCD8B8F18B5ED9200B4B2D9</key>
 		<dict>
 			<key>primary</key>
