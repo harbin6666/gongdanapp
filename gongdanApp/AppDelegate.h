@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 #import "MQTTKit.h"
+#import <AVFoundation/AVAudioPlayer.h>
+#import <AVFoundation/AVFoundation.h>
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 @property (strong, nonatomic) UIWindow *window;
@@ -24,6 +26,8 @@
 @property (nonatomic, strong)NSNumber *todoFreshTime;
 @property (nonatomic, strong)NSString *userTelNum;
 @property (nonatomic, strong)NSString *dept,*company;
+@property (nonatomic, strong)AVAudioPlayer *audioPlayer;
+
 - (void)saveContext;
 - (NSURL *)applicationDocumentsDirectory;
 -(void)freshTimer;

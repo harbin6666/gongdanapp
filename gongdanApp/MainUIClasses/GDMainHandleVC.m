@@ -171,7 +171,8 @@
     [dic setSafeObject:self.formNo forKey:@"FormNo"];
     [dic setSafeObject:__INT(3) forKey:@"FormState"];
     [dic setSafeObject:[self dateToNSString:[NSDate date]] forKey:@"StartTime"];
-    
+    [dic setSafeObject:@"2" forKey:@"PfType"];
+
     [self showLoading];
     [GDService requestWithFunctionName:@"set_form_state" pramaDic:dic requestMethod:@"POST" completion:^(id reObj) {
         [self hideLoading];
@@ -429,12 +430,12 @@
         return;
     }
     
-    if (self.causeTwoArr && self.causeTwoArr.count > 0) {
-        if (anBlock) {
-            anBlock();
-        }
-        return;
-    }
+//    if (self.causeTwoArr && self.causeTwoArr.count > 0) {
+//        if (anBlock) {
+//            anBlock();
+//        }
+//        return;
+//    }
     [self showLoading];
     NSMutableDictionary *dic = [NSMutableDictionary dictionary];
     [dic setSafeObject:__INT(1) forKey:@"Flag"];
@@ -458,12 +459,12 @@
         return;
     }
     
-    if (self.causeThreeArr && self.causeThreeArr.count > 0) {
-        if (anBlock) {
-            anBlock();
-        }
-        return;
-    }
+//    if (self.causeThreeArr && self.causeThreeArr.count > 0) {
+//        if (anBlock) {
+//            anBlock();
+//        }
+//        return;
+//    }
     [self showLoading];
     NSMutableDictionary *dic = [NSMutableDictionary dictionary];
     [dic setSafeObject:[self.selReasonOneDic objectForKey:@"O1"] forKey:@"OneCauseID"];
@@ -571,12 +572,12 @@
                 
                 NSMutableDictionary *oneDic = [NSMutableDictionary dictionary];
                 [oneDic setSafeObject:[dic objectForKey:@"OneCause"] forKey:@"S1"];
-                [oneDic setSafeObject:[dic objectForKey:@"OneCauseID"] forKey:@"01"];
+                [oneDic setSafeObject:[dic objectForKey:@"OneCauseID"] forKey:@"O1"];
                 [self.causeOneArr addObject:oneDic];
                 
                 NSMutableDictionary *twoDic = [NSMutableDictionary dictionary];
                 [twoDic setSafeObject:[dic objectForKey:@"TwoCause"] forKey:@"S1"];
-                [twoDic setSafeObject:[dic objectForKey:@"TwoCauseID"] forKey:@"01"];
+                [twoDic setSafeObject:[dic objectForKey:@"TwoCauseID"] forKey:@"O1"];
                 [self.causeTwoArr addObject:twoDic];
                 
                 NSMutableDictionary *threeDic = [NSMutableDictionary dictionary];
@@ -671,8 +672,8 @@
     [dic setSafeObject:SharedDelegate.loginedUserName forKey:@"Dealor"];
     [dic setSafeObject:__INT(4) forKey:@"FromState"];
     
-    [dic setSafeObject:[NSString stringWithFormat:@"%@",[self.selReasonOneDic objectForKey:@"01"]]forKey:@"CauseOne"];
-    [dic setSafeObject:[NSString stringWithFormat:@"%@",[self.selReasonTwoDic objectForKey:@"01"]] forKey:@"CauseTwo"];
+    [dic setSafeObject:[NSString stringWithFormat:@"%@",[self.selReasonOneDic objectForKey:@"O1"]]forKey:@"CauseOne"];
+    [dic setSafeObject:[NSString stringWithFormat:@"%@",[self.selReasonTwoDic objectForKey:@"O1"]] forKey:@"CauseTwo"];
     [dic setSafeObject:[NSString stringWithFormat:@"%@",[self.selReasonThreeDic objectForKey:@"Key"]] forKey:@"CauseThree"];
     
     [dic setSafeObject:self.reasonTF.text forKey:@"FaultCause"];
@@ -684,7 +685,7 @@
     [dic setSafeObject:nil forKey:@"Fault_backcase"];
 #warning 动环厂商名字
     [dic setSafeObject:self.vendorBtn.titleLabel.text forKey:@"VendorName"];
-    
+    [dic setSafeObject:@"2" forKey:@"PfType"];
     [self showLoading];
     [GDService requestWithFunctionName:@"set_state_last" pramaDic:dic requestMethod:@"POST" completion:^(id reObj) {
         [self hideLoading];
@@ -728,6 +729,9 @@
             [self warnNotice:@"网元不是基站，没有预处理信息"];
             return;
         }
+    }
+    if (self.searchview!=nil) {
+        [self.searchview removeFromSuperview];
     }
     self.topbarBaseInfoBtn.selected = NO;
     self.topbarDetailInfoBtn.selected = NO;
@@ -1252,7 +1256,6 @@
     for (UIView* aView in self.mainScrollView.subviews) {
         [aView removeFromSuperview];
     }
-    [self.searchview removeFromSuperview];
     
     float yPositon = 5;
     float rightXposition = 0.25*self.view.frame.size.width;
@@ -1934,12 +1937,16 @@
         }else {
             self.donghuan=NO;
         }
+        self.selReasonTwoDic=nil;
+        self.selReasonThreeDic=nil;
         [self updateDisplayView];
     }else if (self.viewPoper.pickerView.tag == 2) {
         NSMutableDictionary *dic = [self.causeTwoArr safeObjectAtIndex:row];
         NSString *str = [dic objectForKey:@"S1"];
         self.selReasonTwoDic = dic;//[dic objectForKey:@"O1"];
         [self.detailReasonCateBtn setTitle:str forState:UIControlStateNormal];
+        self.selReasonThreeDic=nil;
+        [self updateDisplayView];
     }
     else if (self.viewPoper.pickerView.tag == 3) {
         NSMutableDictionary *dic = [self.causeThreeArr safeObjectAtIndex:row];
@@ -1974,12 +1981,12 @@
         
         NSMutableDictionary *oneDic = [NSMutableDictionary dictionary];
         [oneDic setSafeObject:[infoDic objectForKey:@"OneCause"] forKey:@"S1"];
-        [oneDic setSafeObject:[infoDic objectForKey:@"OneCauseID"] forKey:@"01"];
+        [oneDic setSafeObject:[infoDic objectForKey:@"OneCauseID"] forKey:@"O1"];
         self.selReasonOneDic = oneDic;
         
         NSMutableDictionary *twoDic = [NSMutableDictionary dictionary];
         [twoDic setSafeObject:[infoDic objectForKey:@"TwoCause"] forKey:@"S1"];
-        [twoDic setSafeObject:[infoDic objectForKey:@"TwoCauseID"] forKey:@"01"];
+        [twoDic setSafeObject:[infoDic objectForKey:@"TwoCauseID"] forKey:@"O1"];
         self.selReasonTwoDic = twoDic;
         
         NSMutableDictionary *threeDic = [NSMutableDictionary dictionary];

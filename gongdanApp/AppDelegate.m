@@ -13,16 +13,13 @@
 #import "GDDoneVC.h"
 #import "GDSearchVC.h"
 #import "GDMainHandleVC.h"
-#import <AVFoundation/AVAudioPlayer.h>
-#import <AVFoundation/AVFoundation.h>
 #define kMQTTServerHost @"120.202.255.76"
 @interface AppDelegate()<UIAlertViewDelegate,AVAudioPlayerDelegate>
 @property(nonatomic,strong)GDWaitTodoVC *vc1;
 @property(nonatomic,strong)NSTimer *timer;
 @property(nonatomic,strong)NSDictionary*pushDic;
 @property(nonatomic,assign)int counter;
-@property (nonatomic, strong) AVAudioPlayer *audioPlayer;
-
+@property(nonatomic,assign)BOOL interruptedWhilePlaying;
 @end
 @implementation AppDelegate
 static MQTTClient *client=nil;
@@ -32,6 +29,8 @@ static MQTTClient *client=nil;
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
 #pragma mark mqtt
 -(void)mqtt{
+    return;
+    
     if (self.loginedUserName==nil||[self.loginedUserName isEqualToString:@""]) {
         return;
     }
@@ -80,21 +79,76 @@ static MQTTClient *client=nil;
     }
 }
 
+-(void)handleInterruption:(NSNotification*)notification{
+    NSError* audioSessionError=nil;
+    NSDictionary *interruptionDictionary = [notification userInfo];
+    NSNumber *interruptionType = (NSNumber *)[interruptionDictionary valueForKey:AVAudioSessionInterruptionTypeKey];
+    if (self.interruptedWhilePlaying) {
+        self.interruptedWhilePlaying=NO;
+        [self.audioPlayer play];
+        if (client!=nil&&client.connected==NO) {
+            [client reconnect];
+        }
+        [[AVAudioSession sharedInstance] setActive:YES error:&audioSessionError];
+    }
+
+    if ([interruptionType intValue] == AVAudioSessionInterruptionTypeBegan) {
+        NSLog(@"Interruption started");
+        self.interruptedWhilePlaying = YES;
+        [self.audioPlayer pause];
+        [[AVAudioSession sharedInstance] setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:&audioSessionError];
+
+    } else if ([interruptionType intValue] == AVAudioSessionInterruptionTypeEnded){
+        NSLog(@"Interruption ended");
+            self.interruptedWhilePlaying=NO;
+            [self.audioPlayer play];
+        if (client!=nil&&client.connected==NO) {
+            [client reconnect];
+        }
+    } else {
+        NSLog(@"Something else happened");
+    }
+    
+
+}
+
+void interruptionListenerCallback ( void *inUserData,  UInt32  interruptionState ) {
+    if (interruptionState == kAudioSessionBeginInterruption) {
+//        if ([SharedDelegate audioPlayer]) {
+            [[SharedDelegate audioPlayer] pause];
+//        }
+    } else if (interruptionState == kAudioSessionEndInterruption) {
+        [[SharedDelegate audioPlayer] play];
+    }
+}
 
 -(void)playsoundForever{
+    
+    [[NSNotificationCenter defaultCenter] addObserver: self
+                                             selector: @selector(handleInterruption:)
+                                                 name: AVAudioSessionInterruptionNotification
+                                               object: [AVAudioSession sharedInstance]];
+
+    
+    //    AVAudioPlayer *userData=self.audioPlayer;
+    //    AudioSessionInitialize ( NULL, NULL, interruptionListenerCallback, &userData);
+
+    if (self.audioPlayer.playing&&self.audioPlayer!=nil) {
+        return;
+    }
     dispatch_queue_t dispatchQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(dispatchQueue, ^(void) {
         NSError *audioSessionError = nil;
         AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+        [audioSession setActive:YES error:&audioSessionError];
         if ([audioSession setCategory:AVAudioSessionCategoryPlayback error:&audioSessionError]){
             NSLog(@"Successfully set the audio session.");
         } else {
             NSLog(@"Could not set the audio session");
         }
         
-        
         NSBundle *mainBundle = [NSBundle mainBundle];
-        NSString *filePath = [mainBundle pathForResource:@"mySong" ofType:@"mp3"];
+        NSString *filePath = [mainBundle pathForResource:@"mysong" ofType:@"mp3"];
         NSData *fileData = [NSData dataWithContentsOfFile:filePath];
         NSError *error = nil;
         
@@ -102,7 +156,8 @@ static MQTTClient *client=nil;
         
         if (self.audioPlayer != nil){
             self.audioPlayer.delegate = self;
-            
+            [self.audioPlayer setVolume:0];
+
             [self.audioPlayer setNumberOfLoops:-1];
             if ([self.audioPlayer prepareToPlay] && [self.audioPlayer play]){
                 NSLog(@"Successfully started playing...");
@@ -191,6 +246,15 @@ static MQTTClient *client=nil;
     self.window.rootViewController = self.tabbarController;
     
     self.window.backgroundColor = [UIColor whiteColor];
+    
+    if ([UIApplication instancesRespondToSelector:@selector(registerUserNotificationSettings:)])
+    {
+        [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeAlert|UIUserNotificationTypeBadge|UIUserNotificationTypeSound categories:nil]];
+    }
+    
+    
+
+//    [self playsoundForever];
     [self.window makeKeyAndVisible];
 //    [self addLocalNotify:@{@"FormNo":@"HB-051-150127-23118",@"FormStatus" : @"2",@"OutTimeStatus" : @0,@"Result":@[@{@"Key":@"工单编号",@"Value":@"HB-051-141014-22149"},@{@"Key":@"工单主题",@"Value":@"测试"},@{@"Key":@"处理时限",@"Value":@"2014-10-15 13:52:26"}]}];
     return YES;
@@ -209,21 +273,14 @@ static MQTTClient *client=nil;
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
 
-//    [self mqtt];
-//
-//    BOOL background=[[UIApplication sharedApplication] setKeepAliveTimeout:600 handler: ^
-//                     {
-//                         [self mqtt];
-//                         NSLog(@"%@   background ON",[UIApplication sharedApplication]);
-//                     }];
-    BOOL backgroundAccepted = [[UIApplication sharedApplication] setKeepAliveTimeout:600 handler:^{
-        NSLog(@"backgrounding accepted");
-        [self backgroundHandler];
-    }];
-    if (backgroundAccepted)
-    {
-    }
-    [self backgroundHandler];
+//    BOOL backgroundAccepted = [[UIApplication sharedApplication] setKeepAliveTimeout:600 handler:^{
+//        NSLog(@"backgrounding accepted");
+//        [self backgroundHandler];
+//    }];
+//    if (backgroundAccepted)
+//    {
+//    }
+//    [self backgroundHandler];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
@@ -233,6 +290,14 @@ static MQTTClient *client=nil;
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
+//    if (self.audioPlayer.playing==NO) {
+//        self.interruptedWhilePlaying=NO;
+//        [self.audioPlayer play];
+//        if (client!=nil&&client.connected==NO) {
+//            [client reconnect];
+//        }
+//    }
+
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
 }
 
