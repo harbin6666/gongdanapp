@@ -764,7 +764,8 @@
     UIButton *selBtn = (UIButton*)sender;
     self.bottomDetailBtn.selected = NO;
     self.bottomProgressRecordBtn.selected = NO;
-    
+   
+
     switch (selBtn.tag) {
         case 1:{
             //
@@ -778,6 +779,9 @@
                 self.followScrollView.hidden=NO;
             }
 //            [self.view sendSubviewToBack:self.formFlowView];
+            if (self.searchview!=nil) {
+                [self.searchview setHidden:NO];
+            }
         }
             break;
         case 2: {//240 248 164
@@ -787,6 +791,9 @@
             self.mainScrollView.hidden=YES;
             self.formFlowView.hidden=NO;
             self.followScrollView.hidden=YES;
+            if (self.searchview!=nil) {
+                [self.searchview setHidden:YES];
+            }
             //            [self.view bringSubviewToFront:self.formFlowView];
         }
             break;
