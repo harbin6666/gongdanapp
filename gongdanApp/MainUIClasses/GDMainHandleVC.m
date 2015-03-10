@@ -1098,6 +1098,7 @@
     lab.text=text;
     lab.numberOfLines=0;
     [self.followScrollView addSubview:lab];
+    self.followScrollView.contentSize=CGSizeMake(self.view.frame.size.width, size.height+10);
 //    self.followScrollView.translatesAutoresizingMaskIntoConstraints=NO;
 //    [self.followScrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-10-[lab]-(>=0)-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(lab)]];
 //    
