@@ -392,8 +392,14 @@
         //[dic setSafeObject:@"HN-051-130810-00036" forKey:@"FormNo"];
         [dic setSafeObject:self.formNo forKey:@"FormNo"];
         
-        [GDService requestWithFunctionName:@"get_form_flow" pramaDic:dic requestMethod:@"POST" completion:^(id reObj) {
-            if ([reObj isKindOfClass:[NSArray class]]) {
+//        [GDService requestWithFunctionName:@"get_form_flow" pramaDic:dic requestMethod:@"POST" completion:^(id reObj) {
+//            if ([reObj isKindOfClass:[NSArray class]]) {
+//                self.formFlowArr = reObj;
+//                [self updateFormView];
+//            }
+//        }];
+        [GDServiceV2 requestFunc:@"wo_get_form_flow" WithParam:dic withCompletBlcok:^(id reObj, NSError *error) {
+            if (error==nil&&[reObj isKindOfClass:[NSArray class]]) {
                 self.formFlowArr = reObj;
                 [self updateFormView];
             }
@@ -1112,38 +1118,72 @@
     int yPositon = 5;
     int rightXposition = 90;
     
-    UILabel *theStaticLabel = [[UILabel alloc]initWithFrame:CGRectMake(5, yPositon, 80, 20)];
-    theStaticLabel.font = [UIFont systemFontOfSize:16.0];
-    theStaticLabel.backgroundColor = [UIColor clearColor];
-    
-    NSString *str = nil;
-    CGSize size = CGSizeZero;
-    UILabel *theRightLabel = [[UILabel alloc]initWithFrame:CGRectMake(rightXposition, yPositon, 220, size.height)];
-    theRightLabel.backgroundColor = [UIColor clearColor];
-    theRightLabel.font = [UIFont systemFontOfSize:16.0];
-    theRightLabel.numberOfLines = 0;
-    theRightLabel.text = str;
+//    UILabel *theStaticLabel = [[UILabel alloc]initWithFrame:CGRectMake(5, yPositon, 80, 20)];
+//    theStaticLabel.font = [UIFont systemFontOfSize:16.0];
+//    theStaticLabel.backgroundColor = [UIColor clearColor];
+//    
+//    NSString *str = nil;
+//    CGSize size = CGSizeZero;
+//    UILabel *theRightLabel = [[UILabel alloc]initWithFrame:CGRectMake(rightXposition, yPositon, 220, size.height)];
+//    theRightLabel.backgroundColor = [UIColor clearColor];
+//    theRightLabel.font = [UIFont systemFontOfSize:16.0];
+//    theRightLabel.numberOfLines = 0;
+//    theRightLabel.text = str;
     
     for (NSDictionary *dic in self.formFlowArr) {
         //NSString *key = [dic objectForKey:@"Key"];
-        NSString *value = [dic objectForKey:@"Result"];
-        
-        theStaticLabel = [[UILabel alloc]initWithFrame:CGRectMake(5, yPositon, 80, 20)];
-        theStaticLabel.font = [UIFont systemFontOfSize:16.0];
-        theStaticLabel.backgroundColor = [UIColor clearColor];
-        theStaticLabel.text = @"sdf:";//[NSString stringWithFormat:@"%@：",key];
-        
-        str = value;
-        size = [str sizeWithFont:[UIFont systemFontOfSize:16.0] constrainedToSize:CGSizeMake(300, 2000)];
-        theRightLabel = [[UILabel alloc]initWithFrame:CGRectMake(10, yPositon, 300, size.height)];
-        theRightLabel.backgroundColor = [UIColor clearColor];
-        theRightLabel.font = [UIFont systemFontOfSize:16.0];
-        theRightLabel.numberOfLines = 0;
-        theRightLabel.text = str;
-        
-        yPositon += size.height>20?size.height+10:30;
-        //[self.formFlowView addSubview:theStaticLabel];
-        [self.formFlowView addSubview:theRightLabel];
+        NSString *Result = [dic objectForKey:@"Result"] ;
+        NSData *data=[Result dataUsingEncoding:NSUTF8StringEncoding];
+        NSError *error=nil;
+        NSArray *arr= [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&error];
+
+        for (int i=0; i<arr.count; i++) {
+            NSDictionary *dic=arr[i];
+            NSString *left=dic[@"Key"];
+            NSString *right=[dic[@"Value"] decodeBase64];
+            CGSize size=[right sizeWithFont:[UIFont systemFontOfSize:16] constrainedToSize:CGSizeMake(0.75*self.view.frame.size.width-20, 5000)];
+            
+//            if (size.height<30) {
+//                size=CGSizeMake(200, 25);
+//            }
+            
+            float newHigh=size.height;
+//            if (newHigh>25) {
+//                newHigh+=20;
+//            }
+            UILabel*t2=[[UILabel alloc] initWithFrame:CGRectMake(0.25*self.view.frame.size.width+5, yPositon, 0.75*self.view.frame.size.width-20, newHigh)]
+            ;
+            t2.numberOfLines=0;
+            t2.font=[UIFont systemFontOfSize:16];
+            t2.backgroundColor=[UIColor clearColor];
+            t2.text=right;
+            
+            UILabel *t=[[UILabel alloc] initWithFrame:CGRectMake(5, yPositon, 0.25*self.view.frame.size.width, newHigh)];
+            t.font=[UIFont systemFontOfSize:16];
+            t.backgroundColor=[UIColor clearColor];
+            t.text=[NSString stringWithFormat:@"%@:",left];
+            [self.formFlowView addSubview:t];
+            [self.formFlowView addSubview:t2];
+            yPositon+=newHigh+2;
+
+        }
+        yPositon+=20;
+//        theStaticLabel = [[UILabel alloc]initWithFrame:CGRectMake(5, yPositon, 80, 20)];
+//        theStaticLabel.font = [UIFont systemFontOfSize:16.0];
+//        theStaticLabel.backgroundColor = [UIColor clearColor];
+//        theStaticLabel.text = @"sdf:";//[NSString stringWithFormat:@"%@：",key];
+//        
+//        str = value;
+//        size = [str sizeWithFont:[UIFont systemFontOfSize:16.0] constrainedToSize:CGSizeMake(300, 2000)];
+//        theRightLabel = [[UILabel alloc]initWithFrame:CGRectMake(10, yPositon, 300, size.height)];
+//        theRightLabel.backgroundColor = [UIColor clearColor];
+//        theRightLabel.font = [UIFont systemFontOfSize:16.0];
+//        theRightLabel.numberOfLines = 0;
+//        theRightLabel.text = str;
+//        
+//        yPositon += size.height>20?size.height+10:30;
+//        //[self.formFlowView addSubview:theStaticLabel];
+//        [self.formFlowView addSubview:theRightLabel];
     }
     self.formFlowView.contentSize = CGSizeMake(320, yPositon);
 }

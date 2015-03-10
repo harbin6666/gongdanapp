@@ -146,7 +146,9 @@
         NSError *aerror = nil;
         id jsonObj = [NSJSONSerialization JSONObjectWithData:aJsonData options:kNilOptions error:&aerror];
         NSLog(@"the functionName is:\n   %@\n jsonData is: \n   %@",self.functionName,jsonObj);
-        
+        if (jsonObj==nil) {
+            NSLog(@"responseString### %@",arequest.responseString);
+        }
         dispatch_async(dispatch_get_main_queue(), ^{
             if (self.comBlock) {
                 self.comBlock(jsonObj);
