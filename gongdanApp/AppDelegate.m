@@ -22,12 +22,13 @@
 @property(nonatomic,assign)BOOL interruptedWhilePlaying;
 @end
 @implementation AppDelegate
-static MQTTClient *client=nil;
+//static MQTTClient *client=nil;
 
 @synthesize managedObjectContext = _managedObjectContext;
 @synthesize managedObjectModel = _managedObjectModel;
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
 #pragma mark mqtt
+/*
 -(void)mqtt{
     return;
     
@@ -206,6 +207,7 @@ void interruptionListenerCallback ( void *inUserData,  UInt32  interruptionState
     [[UIApplication sharedApplication] scheduleLocalNotification:localNotification]; //注册
 
 }
+ */
 #pragma mark mqtt
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
@@ -247,10 +249,10 @@ void interruptionListenerCallback ( void *inUserData,  UInt32  interruptionState
     
     self.window.backgroundColor = [UIColor whiteColor];
     
-    if ([UIApplication instancesRespondToSelector:@selector(registerUserNotificationSettings:)])
-    {
-        [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeAlert|UIUserNotificationTypeBadge|UIUserNotificationTypeSound categories:nil]];
-    }
+//    if ([UIApplication instancesRespondToSelector:@selector(registerUserNotificationSettings:)])
+//    {
+//        [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeAlert|UIUserNotificationTypeBadge|UIUserNotificationTypeSound categories:nil]];
+//    }
     
     
 

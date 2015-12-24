@@ -29,7 +29,6 @@
 		3FC383E81A3BFB5400FDBF39 /* FlySpeech.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC383E71A3BFB5400FDBF39 /* FlySpeech.m */; };
 		3FC383EB1A3C7CBB00FDBF39 /* GDServiceV2.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC383EA1A3C7CBB00FDBF39 /* GDServiceV2.m */; };
 		3FD30B171A845C460004BF4F /* mysong.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 3FD30B161A845C460004BF4F /* mysong.mp3 */; };
-		DC38C9EFC114E5D6B9B4F7A3 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 75CD9FEAD04B91A8F9ED2B3C /* libPods.a */; };
 		FD0E3B2A18BC33FC0029D89E /* GDAppointVC.m in Sources */ = {isa = PBXBuildFile; fileRef = FD0E3B2818BC33FC0029D89E /* GDAppointVC.m */; };
 		FD0E3B2B18BC33FC0029D89E /* GDAppointVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = FD0E3B2918BC33FC0029D89E /* GDAppointVC.xib */; };
 		FD12EB1818BE42AA00FD3D85 /* GDService.m in Sources */ = {isa = PBXBuildFile; fileRef = FD12EB1718BE42AA00FD3D85 /* GDService.m */; };
@@ -176,8 +175,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0C4B34C93856B7DAB5FC4F5C /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
-		3B1532FFBC475154A1EBA5D4 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		3F40EDC11A3F3C2200E30496 /* temp.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = temp.html; sourceTree = "<group>"; };
 		3F40EDC91A408FF400E30496 /* GDWebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GDWebView.h; sourceTree = "<group>"; };
 		3F40EDCA1A408FF400E30496 /* GDWebView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GDWebView.m; sourceTree = "<group>"; };
@@ -399,7 +396,6 @@
 				FDCD8B9818B5ED9200B4B2D9 /* UIKit.framework in Frameworks */,
 				3FC383DE1A3BF81100FDBF39 /* iflyMSC.framework in Frameworks */,
 				FDCD8B9418B5ED9200B4B2D9 /* Foundation.framework in Frameworks */,
-				DC38C9EFC114E5D6B9B4F7A3 /* libPods.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -417,15 +413,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		2CE965450D7B6AD82F3BA368 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				3B1532FFBC475154A1EBA5D4 /* Pods.debug.xcconfig */,
-				0C4B34C93856B7DAB5FC4F5C /* Pods.release.xcconfig */,
-			);
-			name = Pods;
-			sourceTree = "<group>";
-		};
 		3FC383E51A3BFB3000FDBF39 /* Fly */ = {
 			isa = PBXGroup;
 			children = (
@@ -541,7 +528,6 @@
 				FDCD8BB818B5ED9200B4B2D9 /* gongdanAppTests */,
 				FDCD8B9218B5ED9200B4B2D9 /* Frameworks */,
 				FDCD8B9118B5ED9200B4B2D9 /* Products */,
-				2CE965450D7B6AD82F3BA368 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -770,11 +756,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = FDCD8BC218B5ED9200B4B2D9 /* Build configuration list for PBXNativeTarget "gongdanApp" */;
 			buildPhases = (
-				02A235718F785A7BBC5E4E16 /* Check Pods Manifest.lock */,
 				FDCD8B8C18B5ED9200B4B2D9 /* Sources */,
 				FDCD8B8D18B5ED9200B4B2D9 /* Frameworks */,
 				FDCD8B8E18B5ED9200B4B2D9 /* Resources */,
-				715FA57D3791FCF4F4E559E2 /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -950,39 +934,6 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		02A235718F785A7BBC5E4E16 /* Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Check Pods Manifest.lock";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		715FA57D3791FCF4F4E559E2 /* Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
 		FDCD8B8C18B5ED9200B4B2D9 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -1143,11 +1094,11 @@
 		};
 		FDCD8BC318B5ED9200B4B2D9 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3B1532FFBC475154A1EBA5D4 /* Pods.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/gongdanApp",
@@ -1170,11 +1121,11 @@
 		};
 		FDCD8BC418B5ED9200B4B2D9 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0C4B34C93856B7DAB5FC4F5C /* Pods.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Inspur Communication Information System Limited";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Inspur Communication Information System Limited";
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/gongdanApp",

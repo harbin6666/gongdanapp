@@ -67,6 +67,8 @@
 @property (nonatomic, strong)UIButton *reasonBtn;
 @property (nonatomic, strong)UIButton *dealWaySortBtn;
 @property (nonatomic, strong)UITextView *reasonTF;//故障原因
+@property (nonatomic, strong)UITextView* gaojinTV;//告警核实的理由
+@property (nonatomic, strong)UIView* newb;//告警核实浮层
 @property (nonatomic, strong)UIButton *handleMethodBtn;
 @property (nonatomic, strong)UITextView *methodTV;//处理措施
 @property (nonatomic, strong)UIButton *yuyingBtn;
@@ -1045,12 +1047,67 @@
 }
 
 -(void)gaojingheshiClicked:(id)sender{
-    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"是否申请告警核实" message:nil delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"申请",nil];
-    alert.tag = 400;
-    [alert show];
+//    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"是否申请告警核实" message:nil delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"申请",nil];
+//    alert.tag = 400;
+//    [alert show];
+    self.newb=[[UIView alloc] initWithFrame:self.view.bounds];
+    self.newb.backgroundColor=[UIColor colorWithWhite:0.3 alpha:0.5];
+    [self.view addSubview:self.newb];
+    
+    UILabel*lab=[[UILabel alloc] initWithFrame:CGRectMake(0, 20, self.view.frame.size.width, 30)];
+    lab.backgroundColor=[UIColor colorWithRed:58/255.0 green:127/255.0 blue:206/255.0 alpha:1];
+    lab.text=@"告警核实";
+    lab.textColor=[UIColor whiteColor];
+    [self.newb addSubview:lab];
+    
+    UIView *content=[[UIView alloc] initWithFrame:CGRectMake(0, 50, self.view.frame.size.width, 120)];
+    content.backgroundColor=[UIColor whiteColor];
+    [self.newb addSubview:content];
+    UILabel *liyou=[[UILabel alloc] initWithFrame:CGRectMake(0, 0, 40, 60)];
+    liyou.text=@"核实\n理由";
+    liyou.numberOfLines=2;
+    liyou.textAlignment=NSTextAlignmentCenter;
+    [content addSubview:liyou];
+    
+    self.gaojinTV=[[UITextView alloc] initWithFrame:CGRectMake(40, 10, self.view.frame.size.width-50, 60)];
+    self.gaojinTV.layer.borderWidth=2;
+    self.gaojinTV.layer.borderColor=[UIColor orangeColor].CGColor;
+    self.gaojinTV.layer.cornerRadius=2;
+    [content addSubview:self.gaojinTV];
+    UIButton* ok=[UIButton buttonWithType:UIButtonTypeCustom];
+    [ok setTitle:@"提交" forState:UIControlStateNormal];
+    [ok setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    ok.backgroundColor=[UIColor colorWithRed:58/255.0 green:127/255.0 blue:206/255.0 alpha:1];
+    [ok addTarget:self action:@selector(submitGaojin:) forControlEvents:UIControlEventTouchUpInside];
+    ok.frame=CGRectMake(0, 0, 80, 30);
+    ok.center=CGPointMake(self.view.frame.size.width/4, 100);
+    [content addSubview:ok];
+    
+    UIButton* cancel=[UIButton buttonWithType:UIButtonTypeCustom];
+    [cancel setTitle:@"取消" forState:UIControlStateNormal];
+    [cancel setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    cancel.backgroundColor=[UIColor colorWithRed:205/255.0 green:127/255.0 blue:19/255.0 alpha:1];
+    [cancel addTarget:self action:@selector(cancelGaojin) forControlEvents:UIControlEventTouchUpInside];
+    cancel.frame=CGRectMake(0, 0, 80, 30);
+    cancel.center=CGPointMake(self.view.frame.size.width*3/4, 100);
+    [content addSubview:cancel];
 
 }
 
+-(void)cancelGaojin{
+    [self.gaojinTV resignFirstResponder];
+    [self.newb removeFromSuperview];
+}
+
+-(void)submitGaojin:(id)sender{
+    if (self.gaojinTV.text.length>0) {
+        [self.gaojinTV resignFirstResponder];
+        [self gaojingAction:@"2" doc:self.gaojinTV.text];
+    }else{
+        UIAlertView*alert=[[UIAlertView alloc] initWithTitle:@"" message:@"请填写理由" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles: nil];
+        [alert show];
+    }
+}
 -(void)newFuncClick:(UIButton*)btn{
     NSString *txt=nil;
     if (btn.tag==900) {//阶段回复

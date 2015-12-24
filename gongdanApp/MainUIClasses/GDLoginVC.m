@@ -96,7 +96,7 @@
                 [self getCurrentGroup];
                 [self getReject];
                 [self getFreshTime];//只有代办有
-                [SharedDelegate mqtt];
+//                [SharedDelegate mqtt];
             }else if ([result isEqualToString:@"1"]){
                 [self hideLoading];
                 UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"登录失败" message:@"用户不存在" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil];
