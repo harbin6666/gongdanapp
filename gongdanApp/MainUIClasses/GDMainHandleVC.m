@@ -95,6 +95,7 @@
 
 @property (nonatomic, strong) UIView *searchview;
 @property (nonatomic, strong) NSString *btsName;
+@property (nonatomic) NSInteger isPowerAlarmId;
 @property (nonatomic,strong) UITextView*btsTxtV;
 @property (nonatomic, strong)NSString *cleartime;
 @end
@@ -318,6 +319,7 @@
             self.alarmId=[self.detailDic objectForKey:@"Alarm_id"];
             self.btsName=[self.detailDic objectForKey:@"BtsName"];
             self.cleartime=[self.detailDic objectForKey:@"ClearTime"];
+            self.isPowerAlarmId=[self.detailDic[@"isPowerAlarmId"] integerValue];
 #warning 网络一级分类为：动力设备， ID： 101010406
             if ([[self.detailDic objectForKey:@"NetSort_one"] isEqualToString:@"101010406"]) {
                 self.donghuan=YES;
@@ -419,7 +421,11 @@
     }
     [self showLoading];
     NSMutableDictionary *dic = [NSMutableDictionary dictionary];
-    [dic setSafeObject:__INT(0) forKey:@"Flag"];
+    if (self.isPowerAlarmId==0) {
+        [dic setSafeObject:__INT(0) forKey:@"Flag"];
+    }else{
+        [dic setSafeObject:__INT(4) forKey:@"Flag"];
+    }
     [GDService requestWithFunctionName:@"get_fault_cause" pramaDic:dic requestMethod:@"POST" completion:^(id reObj) {
         [self hideLoading];
         if ([reObj isKindOfClass:[NSArray class]]) {
