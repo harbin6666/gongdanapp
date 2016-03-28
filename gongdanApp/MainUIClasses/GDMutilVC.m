@@ -59,6 +59,7 @@
     dispatch_queue_t aQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_group_t queueGroup = dispatch_group_create();
     __block int p=0;
+    __block int t=0;
     for (NSIndexPath*indexP in self.selectArray) {
         NSDictionary *form=[self.dataArr objectAtIndex:indexP.row];
         NSMutableDictionary *dic = [NSMutableDictionary dictionary];
@@ -67,7 +68,8 @@
         [dic setSafeObject:__INT(3) forKey:@"FormState"];
         [dic setSafeObject:[self dateToNSString:[NSDate date]] forKey:@"StartTime"];
         [dic setSafeObject:@"2" forKey:@"PfType"];
-        
+        dispatch_group_enter(queueGroup);
+
         dispatch_group_async(queueGroup, aQueue, ^{
             [GDService requestWithFunctionName:@"set_form_state" pramaDic:dic requestMethod:@"POST" completion:^(id reObj) {
                 if ([reObj isKindOfClass:[NSDictionary class]]) {
@@ -77,21 +79,27 @@
                     if ([str isEqualToString:@"成功"]){//(state == 0) {
                         p++;
                     }
+                    t++;
                 }
+                dispatch_group_leave(queueGroup);
             }];
         });
         dispatch_group_wait(queueGroup, DISPATCH_TIME_FOREVER);
-        dispatch_group_notify(queueGroup, aQueue, ^{
-            dispatch_async(dispatch_get_main_queue(), ^{
-                if (p==self.selectArray.count) {
-                    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"受理成功" message:@"" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-                    [alert show];
-                }else{
-                    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"受理失败" message:@"" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-                    [alert show];
-                }
-                [self getData];
-            });
+        dispatch_group_notify(queueGroup, dispatch_get_main_queue(), ^{
+            if (t==self.selectArray.count) {
+                    [self hideLoading];
+                    if (p==self.selectArray.count) {
+                        UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"受理成功" message:@"" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+                        [alert show];
+                    }else{
+                        NSString *st=[NSString stringWithFormat:@"%zd条处理失败，%d条处理成功",self.selectArray.count-p,p];
+                        UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"受理失败" message:st delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+                        [alert show];
+                    }
+                    if (p>0) {
+                        [self getData];
+                    }
+            }
         });
     }
 }

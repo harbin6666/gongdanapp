@@ -10,7 +10,6 @@
 		39C0FD7C1CA969D9009E80C2 /* NSData+DES.m in Sources */ = {isa = PBXBuildFile; fileRef = 39C0FD7B1CA969D9009E80C2 /* NSData+DES.m */; };
 		39C0FD7F1CA97847009E80C2 /* GDMutilVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 39C0FD7E1CA97847009E80C2 /* GDMutilVC.m */; };
 		39C0FD821CA99CD1009E80C2 /* GDMutilCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 39C0FD811CA99CD1009E80C2 /* GDMutilCell.m */; };
-		3F40EDC21A3F3C2200E30496 /* temp.html in Resources */ = {isa = PBXBuildFile; fileRef = 3F40EDC11A3F3C2200E30496 /* temp.html */; };
 		3F40EDCB1A408FF400E30496 /* GDWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F40EDCA1A408FF400E30496 /* GDWebView.m */; };
 		3F96CD0C1A46DDBD0080A51E /* PhoneViewPoper.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F96CD0B1A46DDBD0080A51E /* PhoneViewPoper.m */; };
 		3F96CD0F1A46DDF10080A51E /* OTSViewPoper.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F96CD0E1A46DDF00080A51E /* OTSViewPoper.m */; };
@@ -31,7 +30,6 @@
 		3FC383E41A3BF86700FDBF39 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3FC383E31A3BF86700FDBF39 /* AudioToolbox.framework */; };
 		3FC383E81A3BFB5400FDBF39 /* FlySpeech.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC383E71A3BFB5400FDBF39 /* FlySpeech.m */; };
 		3FC383EB1A3C7CBB00FDBF39 /* GDServiceV2.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FC383EA1A3C7CBB00FDBF39 /* GDServiceV2.m */; };
-		3FD30B171A845C460004BF4F /* mysong.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 3FD30B161A845C460004BF4F /* mysong.mp3 */; };
 		FD0E3B2A18BC33FC0029D89E /* GDAppointVC.m in Sources */ = {isa = PBXBuildFile; fileRef = FD0E3B2818BC33FC0029D89E /* GDAppointVC.m */; };
 		FD0E3B2B18BC33FC0029D89E /* GDAppointVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = FD0E3B2918BC33FC0029D89E /* GDAppointVC.xib */; };
 		FD12EB1818BE42AA00FD3D85 /* GDService.m in Sources */ = {isa = PBXBuildFile; fileRef = FD12EB1718BE42AA00FD3D85 /* GDService.m */; };
@@ -184,7 +182,6 @@
 		39C0FD7E1CA97847009E80C2 /* GDMutilVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GDMutilVC.m; sourceTree = "<group>"; };
 		39C0FD801CA99CD1009E80C2 /* GDMutilCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GDMutilCell.h; sourceTree = "<group>"; };
 		39C0FD811CA99CD1009E80C2 /* GDMutilCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GDMutilCell.m; sourceTree = "<group>"; };
-		3F40EDC11A3F3C2200E30496 /* temp.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = temp.html; sourceTree = "<group>"; };
 		3F40EDC91A408FF400E30496 /* GDWebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GDWebView.h; sourceTree = "<group>"; };
 		3F40EDCA1A408FF400E30496 /* GDWebView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GDWebView.m; sourceTree = "<group>"; };
 		3F96CD0A1A46DDBD0080A51E /* PhoneViewPoper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhoneViewPoper.h; sourceTree = "<group>"; };
@@ -212,7 +209,6 @@
 		3FC383E71A3BFB5400FDBF39 /* FlySpeech.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FlySpeech.m; sourceTree = "<group>"; };
 		3FC383E91A3C7CBB00FDBF39 /* GDServiceV2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GDServiceV2.h; sourceTree = "<group>"; };
 		3FC383EA1A3C7CBB00FDBF39 /* GDServiceV2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GDServiceV2.m; sourceTree = "<group>"; };
-		3FD30B161A845C460004BF4F /* mysong.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = mysong.mp3; sourceTree = "<group>"; };
 		75CD9FEAD04B91A8F9ED2B3C /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		FD0E3B2718BC33FC0029D89E /* GDAppointVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GDAppointVC.h; sourceTree = "<group>"; };
 		FD0E3B2818BC33FC0029D89E /* GDAppointVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GDAppointVC.m; sourceTree = "<group>"; };
@@ -457,7 +453,6 @@
 				3FB881871A4D91DA0078F4E6 /* GDTextView.m */,
 				3F40EDC91A408FF400E30496 /* GDWebView.h */,
 				3F40EDCA1A408FF400E30496 /* GDWebView.m */,
-				3F40EDC11A3F3C2200E30496 /* temp.html */,
 				FDCEA93518B9987B0080D866 /* GDMainHandleVC.xib */,
 			);
 			path = MainUIClasses;
@@ -592,7 +587,6 @@
 		FDCD8B9C18B5ED9200B4B2D9 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				3FD30B161A845C460004BF4F /* mysong.mp3 */,
 				FDCD8B9D18B5ED9200B4B2D9 /* gongdanApp-Info.plist */,
 				FDCD8B9E18B5ED9200B4B2D9 /* InfoPlist.strings */,
 				FDCD8BA118B5ED9200B4B2D9 /* main.m */,
@@ -878,7 +872,6 @@
 				FD378C5718D1A0ED003288A8 /* takePhoto_sel@2x.png in Resources */,
 				FD28418918BCF525008CF1A4 /* accept_sel@2x.png in Resources */,
 				FD28417E18BCF3A6008CF1A4 /* item3@2x.png in Resources */,
-				3FD30B171A845C460004BF4F /* mysong.mp3 in Resources */,
 				FD2B2C5218C6BD3200778A60 /* back@2x.png in Resources */,
 				FD28418F18BCF525008CF1A4 /* history_sel@2x.png in Resources */,
 				FDC11D4918C36CEB00167DDD /* loginBg@2x.png in Resources */,
@@ -927,7 +920,6 @@
 				FD28419F18BCF966008CF1A4 /* photo_sel.png in Resources */,
 				3F96CD181A46E0BF0080A51E /* actionsheet_bg@2x.png in Resources */,
 				FD28418A18BCF525008CF1A4 /* accept@2x.png in Resources */,
-				3F40EDC21A3F3C2200E30496 /* temp.html in Resources */,
 				FDCEA92B18B87DF00080D866 /* normalCell_bg@2x.png in Resources */,
 				FD875F6E18C1A5710015E228 /* downArr.png in Resources */,
 				FD28415C18BCD8D9008CF1A4 /* submit@2x.png in Resources */,
