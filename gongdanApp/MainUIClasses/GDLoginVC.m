@@ -8,6 +8,7 @@
 
 #import "GDLoginVC.h"
 #import "AppDelegate.h"
+#import "NSData+DES.h"
 
 @interface GDLoginVC ()
 @property (weak, nonatomic) IBOutlet UITextField *userNameTF;
@@ -35,13 +36,21 @@
     // Do any additional setup after loading the view from its nib.
     UITapGestureRecognizer *ges = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(closeKeyBoard)];
     [self.view addGestureRecognizer:ges];
-    NSString *userName = [[NSUserDefaults standardUserDefaults] objectForKey:@"UserName"];
+    id userName = [[NSUserDefaults standardUserDefaults] objectForKey:@"UserName"];
     if (userName) {
-        self.userNameTF.text = userName;
+        if ([userName isKindOfClass:[NSString class]]) {
+            self.userNameTF.text=userName;
+        }else{
+            self.userNameTF.text = [[NSString alloc] initWithData:[NSData DESDecrypt:userName WithKey:nil] encoding:NSUTF8StringEncoding];
+        }
     }
-    NSString *passWord = [[NSUserDefaults standardUserDefaults] objectForKey:@"PassWord"];
+    id  passWord = [[NSUserDefaults standardUserDefaults] objectForKey:@"PassWord"];
     if (passWord) {
-        self.secretTF.text = passWord;
+        if ([passWord isKindOfClass:[NSString class]]) {
+            self.secretTF.text=passWord;
+        }else{
+            self.secretTF.text = [[NSString alloc] initWithData:[NSData DESDecrypt:passWord WithKey:nil] encoding:NSUTF8StringEncoding];
+        }
         self.rememberPassBtn.selected = YES;
         self.isRememberPass = YES;
     }
@@ -77,7 +86,10 @@
     
     [dic setObject:self.userNameTF.text forKey:@"Username"];
     [dic setObject:self.secretTF.text forKey:@"Password"];
-    
+    [dic setObject:@"1" forKey:@"AppType"];
+    [dic setObject:@"2" forKey:@"PfType"];
+    [dic setObject:[[[UIDevice currentDevice] identifierForVendor] UUIDString] forKey:@"DeviceId"];
+
     [self showLoading];
     [GDService requestWithFunctionName:@"mq_pass" pramaDic:dic requestMethod:@"POST" completion:^(id reObj){
         //
@@ -97,15 +109,19 @@
                 [self getReject];
                 [self getFreshTime];//只有代办有
 //                [SharedDelegate mqtt];
-            }else if ([result isEqualToString:@"1"]){
+            }else if ([result isEqualToString:@"1"]||[result isEqualToString:@"2"]||[result isEqualToString:@"3"]){
                 [self hideLoading];
-                UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"登录失败" message:@"用户不存在" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil];
+                UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"登录失败" message:@"用户名或者密码错误" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil];
                 [alert show];
-            }
-            else if ([result isEqualToString:@"2"]){
+            }else if ([result isEqualToString:@"4"]){
                 [self hideLoading];
-                UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"登录失败" message:@"密码不正确" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil];
+                UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"登录失败" message:@"账号被锁定" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil];
                 [alert show];
+            }else if ([result isEqualToString:@"5"]){
+                [self hideLoading];
+                UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"登录失败" message:@"账号目前在线，不允许重复登陆" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil];
+                [alert show];
+
             }else{
                 [self hideLoading];
                 UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"登录失败" message:@"其他原因" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil];
@@ -228,8 +244,11 @@
         [[NSUserDefaults standardUserDefaults] setObject:__BOOL(NO) forKey:@"isAutoLogin"];
     }
     if (self.isRememberPass) {
-        [[NSUserDefaults standardUserDefaults] setObject:self.userNameTF.text forKey:@"UserName"];
-        [[NSUserDefaults standardUserDefaults] setObject:self.secretTF.text forKey:@"PassWord"];
+        NSData*userNameData=[NSData DESEncrypt:[self.userNameTF.text dataUsingEncoding:NSUTF8StringEncoding] WithKey:nil];
+        NSData*passData=[NSData DESEncrypt:[self.secretTF.text dataUsingEncoding:NSUTF8StringEncoding] WithKey:nil];
+        
+        [[NSUserDefaults standardUserDefaults] setObject:userNameData forKey:@"UserName"];
+        [[NSUserDefaults standardUserDefaults] setObject:passData forKey:@"PassWord"];
     }else{
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"PassWord"];//setObject:__BOOL(YES) forKey:@"ISREMEMBERPASS"];
     }

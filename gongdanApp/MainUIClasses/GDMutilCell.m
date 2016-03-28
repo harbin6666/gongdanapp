@@ -1,18 +1,21 @@
 //
-//  GDCommonRootTVC.m
+//  GDMutilCell.m
 //  gongdanApp
 //
-//  Created by 薛翔 on 14-2-23.
-//  Copyright (c) 2014年 xuexiang. All rights reserved.
+//  Created by yj on 16/3/29.
+//  Copyright © 2016年 xuexiang. All rights reserved.
 //
 
-#import "GDCommonRootTVC.h"
-@interface GDCommonRootTVC ()
+#import "GDMutilCell.h"
+@interface GDMutilCell()
+@property(nonatomic, strong)UILabel *themeLabel;
+@property(nonatomic, strong)UILabel *codeLabel;
+@property(nonatomic, strong)UILabel *timeLabel;
+
+@property(nonatomic)int state;
 
 @end
-
-@implementation GDCommonRootTVC
-
+@implementation GDMutilCell
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
 {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
@@ -21,27 +24,27 @@
         self.backgroundColor = [UIColor clearColor];
         self.backgroundView = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"cell_bg_normal"]];
         
-        self.stateImgV = [[UIImageView alloc]initWithFrame:CGRectMake(10, 8, 64, 64)];
-        [self.stateImgV setImage:[UIImage imageNamed:@"form_normal"]];
-        [self.contentView addSubview:_stateImgV];
+        self.stateImgV = [[UIImageView alloc]initWithFrame:CGRectMake(10, 28, 24, 24)];
+        [self.stateImgV setImage:[UIImage imageNamed:@"login_auto"]];
+        [self.contentView addSubview:self.stateImgV];
         
         self.codeLabel = [[UILabel alloc]initWithFrame:CGRectMake(80, 10, 230, 20)];
         self.codeLabel.backgroundColor = [UIColor clearColor];
         self.codeLabel.text = @"";
         self.codeLabel.font = [UIFont systemFontOfSize:15.0];
-        [self.contentView addSubview:_codeLabel];
+        [self.contentView addSubview:self.codeLabel];
         
         self.themeLabel = [[UILabel alloc]initWithFrame:CGRectMake(80, 32, 230, 20)];
         self.themeLabel.backgroundColor = [UIColor clearColor];
         self.themeLabel.text = @"";
         self.themeLabel.font = [UIFont systemFontOfSize:15.0];
-        [self.contentView addSubview:_themeLabel];
+        [self.contentView addSubview:self.themeLabel];
         
         self.timeLabel = [[UILabel alloc]initWithFrame:CGRectMake(80, 54, 230, 20)];
         self.timeLabel.backgroundColor = [UIColor clearColor];
         self.timeLabel.text = @"";
         self.timeLabel.font = [UIFont systemFontOfSize:15.0];
-        [self.contentView addSubview:_timeLabel];
+        [self.contentView addSubview:self.timeLabel];
     }
     return self;
 }
@@ -51,7 +54,6 @@
     NSArray *arr = [resultStr componentsSeparatedByString:@"\n"];
     return arr;
 }
-
 
 - (void)updateWithDic:(NSMutableDictionary*)dic {
     NSString *Result=[dic objectForKey:@"Result"];
@@ -81,7 +83,7 @@
                 self.timeLabel.text = str;
             }
         }
-
+        
     }else{//代办工单
         for (NSDictionary* dic in arr) {
             if ([dic[@"Key"] isEqualToString:@"工单编号"]) {
@@ -109,34 +111,15 @@
                 
             }
         }
-    }
-    
-    
-    NSNumber* status = [dic objectForKey:@"FormStatus"];
-    switch (status.intValue) {
-        case 1:
-            [self.stateImgV setImage:[UIImage imageNamed:@"form_temp"]];
-            break;
-        case 2:
-            [self.stateImgV setImage:[UIImage imageNamed:@"form_notAccept"]];
-            break;
-        case 3:
-            [self.stateImgV setImage:[UIImage imageNamed:@"form_accept"]];
-            break;
-        case 4:
-            [self.stateImgV setImage:[UIImage imageNamed:@"form_checking"]];
-            break;
-        case 7:
-            [self.stateImgV setImage:[UIImage imageNamed:@"form_force"]];
-            break;
-        default:
-            [self.stateImgV setImage:[UIImage imageNamed:@"form_normal"]];
-            break;
+//        self.stateImgV.image=[UIImage imageNamed:@"login_auto"];
     }
 }
 
-- (void)setSelected:(BOOL)selected animated:(BOOL)animated
-{
+- (void)awakeFromNib {
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
     [super setSelected:selected animated:animated];
 
     // Configure the view for the selected state

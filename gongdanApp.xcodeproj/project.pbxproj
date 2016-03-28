@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		39C0FD7C1CA969D9009E80C2 /* NSData+DES.m in Sources */ = {isa = PBXBuildFile; fileRef = 39C0FD7B1CA969D9009E80C2 /* NSData+DES.m */; };
+		39C0FD7F1CA97847009E80C2 /* GDMutilVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 39C0FD7E1CA97847009E80C2 /* GDMutilVC.m */; };
+		39C0FD821CA99CD1009E80C2 /* GDMutilCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 39C0FD811CA99CD1009E80C2 /* GDMutilCell.m */; };
 		3F40EDC21A3F3C2200E30496 /* temp.html in Resources */ = {isa = PBXBuildFile; fileRef = 3F40EDC11A3F3C2200E30496 /* temp.html */; };
 		3F40EDCB1A408FF400E30496 /* GDWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F40EDCA1A408FF400E30496 /* GDWebView.m */; };
 		3F96CD0C1A46DDBD0080A51E /* PhoneViewPoper.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F96CD0B1A46DDBD0080A51E /* PhoneViewPoper.m */; };
@@ -175,6 +178,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		39C0FD7A1CA969D9009E80C2 /* NSData+DES.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+DES.h"; sourceTree = "<group>"; };
+		39C0FD7B1CA969D9009E80C2 /* NSData+DES.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+DES.m"; sourceTree = "<group>"; };
+		39C0FD7D1CA97847009E80C2 /* GDMutilVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GDMutilVC.h; sourceTree = "<group>"; };
+		39C0FD7E1CA97847009E80C2 /* GDMutilVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GDMutilVC.m; sourceTree = "<group>"; };
+		39C0FD801CA99CD1009E80C2 /* GDMutilCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GDMutilCell.h; sourceTree = "<group>"; };
+		39C0FD811CA99CD1009E80C2 /* GDMutilCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GDMutilCell.m; sourceTree = "<group>"; };
 		3F40EDC11A3F3C2200E30496 /* temp.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = temp.html; sourceTree = "<group>"; };
 		3F40EDC91A408FF400E30496 /* GDWebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GDWebView.h; sourceTree = "<group>"; };
 		3F40EDCA1A408FF400E30496 /* GDWebView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GDWebView.m; sourceTree = "<group>"; };
@@ -429,6 +438,10 @@
 				FD3406C918B6690B00EB4ABB /* WaitTodoParts */,
 				FD3406BD18B65C9C00EB4ABB /* GDCopyVC.h */,
 				FD3406BE18B65C9C00EB4ABB /* GDCopyVC.m */,
+				39C0FD7D1CA97847009E80C2 /* GDMutilVC.h */,
+				39C0FD7E1CA97847009E80C2 /* GDMutilVC.m */,
+				39C0FD801CA99CD1009E80C2 /* GDMutilCell.h */,
+				39C0FD811CA99CD1009E80C2 /* GDMutilCell.m */,
 				FD3406C018B65CBC00EB4ABB /* GDDoneVC.h */,
 				FD3406C118B65CBC00EB4ABB /* GDDoneVC.m */,
 				FD3406C318B65CD600EB4ABB /* GDSearchVC.h */,
@@ -627,6 +640,8 @@
 				FD2C239018FEE54D00414157 /* MXSCycleScrollView.m */,
 				FD2C239118FEE54D00414157 /* RBCustomDatePickerView.h */,
 				FD2C239218FEE54D00414157 /* RBCustomDatePickerView.m */,
+				39C0FD7A1CA969D9009E80C2 /* NSData+DES.h */,
+				39C0FD7B1CA969D9009E80C2 /* NSData+DES.m */,
 			);
 			path = Based;
 			sourceTree = "<group>";
@@ -952,11 +967,13 @@
 				3FC383E81A3BFB5400FDBF39 /* FlySpeech.m in Sources */,
 				FDAD51F718C620340045C803 /* GTMBase64.m in Sources */,
 				FD3406C218B65CBC00EB4ABB /* GDDoneVC.m in Sources */,
+				39C0FD7F1CA97847009E80C2 /* GDMutilVC.m in Sources */,
 				FDCD8BCC18B5F59600B4B2D9 /* GDBasedNC.m in Sources */,
 				FDCEA93618B9987B0080D866 /* GDMainHandleVC.m in Sources */,
 				3FC383EB1A3C7CBB00FDBF39 /* GDServiceV2.m in Sources */,
 				FD59D11F18BB733F00E7F3A0 /* ASIAuthenticationDialog.m in Sources */,
 				FD4868A618C45EBD00706AF6 /* MBProgressHUD.m in Sources */,
+				39C0FD821CA99CD1009E80C2 /* GDMutilCell.m in Sources */,
 				3FB881881A4D91DA0078F4E6 /* GDTextView.m in Sources */,
 				FD3406BF18B65C9C00EB4ABB /* GDCopyVC.m in Sources */,
 				3F40EDCB1A408FF400E30496 /* GDWebView.m in Sources */,
@@ -966,6 +983,7 @@
 				FDC11D3E18C36BC100167DDD /* GDLoginVC.m in Sources */,
 				FD2AF15F18CADE31004932A8 /* GDUpSearchView.m in Sources */,
 				FDCD8BA918B5ED9200B4B2D9 /* gongdanApp.xcdatamodeld in Sources */,
+				39C0FD7C1CA969D9009E80C2 /* NSData+DES.m in Sources */,
 				FD59D12318BB733F00E7F3A0 /* ASIFormDataRequest.m in Sources */,
 				FD59D12A18BB734A00E7F3A0 /* Reachability.m in Sources */,
 				FDCEA93218B97C750080D866 /* GDCommonRootTVC.m in Sources */,

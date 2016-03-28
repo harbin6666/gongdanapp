@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="9060" systemVersion="15B42" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="9532" systemVersion="15D21" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9051"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9530"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="GDMainHandleVC">
@@ -14,6 +14,7 @@
                 <outlet property="mainScrollView" destination="grG-s4-76j" id="Q3K-Tg-NqQ"/>
                 <outlet property="rejectTF" destination="tKi-kf-Xry" id="poH-4C-BxN"/>
                 <outlet property="rejectView" destination="WiZ-nx-7yW" id="icE-8G-Isf"/>
+                <outlet property="topBarAlermBtn" destination="unB-tu-qez" id="EZC-Ds-w43"/>
                 <outlet property="topBarHistoryBtn" destination="xlF-yd-fJf" id="8DU-5L-Ox7"/>
                 <outlet property="topbar" destination="osc-59-2Sc" id="dKP-KP-Wn3"/>
                 <outlet property="topbarBaseInfoBtn" destination="0ZT-Fn-RgP" id="3PI-oQ-qIm"/>
@@ -28,7 +29,6 @@
             <subviews>
                 <scrollView multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="grG-s4-76j">
                     <rect key="frame" x="0.0" y="44" width="320" height="411"/>
-                    <animations/>
                     <color key="backgroundColor" red="0.94117647058823528" green="0.97254901960784312" blue="0.64313725490196072" alpha="1" colorSpace="calibratedRGB"/>
                     <connections>
                         <outlet property="delegate" destination="-1" id="IRR-EJ-KWD"/>
@@ -36,12 +36,10 @@
                 </scrollView>
                 <scrollView multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="LfI-jE-4ei">
                     <rect key="frame" x="0.0" y="0.0" width="320" height="455"/>
-                    <animations/>
                     <color key="backgroundColor" red="0.94117647059999998" green="0.97254901959999995" blue="0.64313725489999995" alpha="1" colorSpace="calibratedRGB"/>
                 </scrollView>
                 <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="vsO-Z3-vRc">
                     <rect key="frame" x="0.0" y="44" width="320" height="411"/>
-                    <animations/>
                     <color key="backgroundColor" red="0.94117647058823528" green="0.97254901960784312" blue="0.64313725490196072" alpha="1" colorSpace="calibratedRGB"/>
                 </scrollView>
                 <view contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="osc-59-2Sc">
@@ -49,11 +47,9 @@
                     <subviews>
                         <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="tab_bg.png" translatesAutoresizingMaskIntoConstraints="NO" id="jVa-UG-b8V">
                             <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
-                            <animations/>
                         </imageView>
                         <button opaque="NO" tag="1" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0ZT-Fn-RgP">
-                            <rect key="frame" x="0.0" y="0.0" width="106" height="44"/>
-                            <animations/>
+                            <rect key="frame" x="0.0" y="0.0" width="80" height="44"/>
                             <fontDescription key="fontDescription" type="system" pointSize="15"/>
                             <state key="normal" title="工单信息">
                                 <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
@@ -68,11 +64,10 @@
                                 <action selector="topBarBtnClicked:" destination="-1" eventType="touchUpInside" id="T4K-dh-bSB"/>
                             </connections>
                         </button>
-                        <button opaque="NO" tag="3" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xlF-yd-fJf">
-                            <rect key="frame" x="106" y="0.0" width="108" height="44"/>
-                            <animations/>
+                        <button opaque="NO" tag="4" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="unB-tu-qez">
+                            <rect key="frame" x="160" y="0.0" width="80" height="44"/>
                             <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                            <state key="normal" title="追单信息">
+                            <state key="normal" title="告警百科">
                                 <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                             </state>
                             <state key="selected" backgroundImage="tab_bg_child_pressed.png">
@@ -82,12 +77,11 @@
                                 <color key="titleColor" red="0.22352941179999999" green="0.92941176469999998" blue="0.90588235289999997" alpha="1" colorSpace="calibratedRGB"/>
                             </state>
                             <connections>
-                                <action selector="topBarBtnClicked:" destination="-1" eventType="touchUpInside" id="t25-IX-L1a"/>
+                                <action selector="topBarBtnClicked:" destination="-1" eventType="touchUpInside" id="HfC-Tr-95i"/>
                             </connections>
                         </button>
                         <button opaque="NO" tag="2" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SJQ-gQ-SRH">
-                            <rect key="frame" x="212" y="0.0" width="106" height="44"/>
-                            <animations/>
+                            <rect key="frame" x="240" y="0.0" width="80" height="44"/>
                             <fontDescription key="fontDescription" type="system" pointSize="15"/>
                             <state key="normal" title="预处理信息">
                                 <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -103,8 +97,23 @@
                                 <action selector="topBarBtnClicked:" destination="-1" eventType="touchUpInside" id="bHC-Bq-jaO"/>
                             </connections>
                         </button>
+                        <button opaque="NO" tag="3" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xlF-yd-fJf">
+                            <rect key="frame" x="80" y="0.0" width="80" height="44"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                            <state key="normal" title="追单信息">
+                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                            </state>
+                            <state key="selected" backgroundImage="tab_bg_child_pressed.png">
+                                <color key="titleColor" red="0.22352941179999999" green="0.92941176469999998" blue="0.90588235289999997" alpha="1" colorSpace="calibratedRGB"/>
+                            </state>
+                            <state key="highlighted">
+                                <color key="titleColor" red="0.22352941179999999" green="0.92941176469999998" blue="0.90588235289999997" alpha="1" colorSpace="calibratedRGB"/>
+                            </state>
+                            <connections>
+                                <action selector="topBarBtnClicked:" destination="-1" eventType="touchUpInside" id="t25-IX-L1a"/>
+                            </connections>
+                        </button>
                     </subviews>
-                    <animations/>
                     <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                 </view>
                 <view contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4zC-Pj-BUf">
@@ -112,11 +121,9 @@
                     <subviews>
                         <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" image="tab_bg.png" translatesAutoresizingMaskIntoConstraints="NO" id="YVF-SU-dvQ">
                             <rect key="frame" x="0.0" y="0.0" width="320" height="49"/>
-                            <animations/>
                         </imageView>
                         <button tag="1" contentMode="scaleToFill" misplaced="YES" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5p2-fq-qaX">
                             <rect key="frame" x="0.0" y="0.0" width="160" height="49"/>
-                            <animations/>
                             <fontDescription key="fontDescription" type="system" pointSize="15"/>
                             <state key="normal" title="工单详情">
                                 <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
@@ -133,7 +140,6 @@
                         </button>
                         <button opaque="NO" tag="2" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vrq-ym-AMX">
                             <rect key="frame" x="160" y="0.0" width="160" height="49"/>
-                            <animations/>
                             <fontDescription key="fontDescription" type="system" pointSize="15"/>
                             <state key="normal" title="流程记录">
                                 <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -150,7 +156,6 @@
                             </connections>
                         </button>
                     </subviews>
-                    <animations/>
                     <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                     <constraints>
                         <constraint firstItem="YVF-SU-dvQ" firstAttribute="top" secondItem="4zC-Pj-BUf" secondAttribute="top" id="2QH-mW-73p"/>
@@ -166,7 +171,6 @@
                     </constraints>
                 </view>
             </subviews>
-            <animations/>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
             <constraints>
                 <constraint firstItem="LfI-jE-4ei" firstAttribute="leading" secondItem="1" secondAttribute="leading" id="12y-gc-NVn"/>
@@ -191,14 +195,12 @@
             <subviews>
                 <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="tKi-kf-Xry">
                     <rect key="frame" x="20" y="32" width="280" height="128"/>
-                    <animations/>
                     <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                     <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="14"/>
                     <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                 </textView>
                 <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xqw-13-eQp">
                     <rect key="frame" x="51" y="172" width="79" height="26"/>
-                    <animations/>
                     <state key="normal" title="取消" backgroundImage="operBtn@2x.png">
                         <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
@@ -209,7 +211,6 @@
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="abC-h6-P3N">
                     <rect key="frame" x="190" y="172" width="79" height="26"/>
-                    <animations/>
                     <state key="normal" title="提交" backgroundImage="operBtn@2x.png">
                         <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
@@ -220,13 +221,11 @@
                 </button>
                 <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="驳回理由：" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dHj-ZU-Zei">
                     <rect key="frame" x="20" y="7" width="85" height="21"/>
-                    <animations/>
                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                     <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                     <nil key="highlightedColor"/>
                 </label>
             </subviews>
-            <animations/>
             <color key="backgroundColor" red="0.94117647058823528" green="0.97254901960784312" blue="0.64313725490196072" alpha="1" colorSpace="calibratedRGB"/>
             <nil key="simulatedStatusBarMetrics"/>
         </view>

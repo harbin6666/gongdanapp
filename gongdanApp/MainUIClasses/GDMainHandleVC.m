@@ -19,6 +19,7 @@
 @property (weak, nonatomic) IBOutlet UIButton *topbarBaseInfoBtn;//基本信息
 @property (weak, nonatomic) IBOutlet UIButton *topbarDetailInfoBtn;//预处理
 @property (weak, nonatomic) IBOutlet UIButton *topBarHistoryBtn;//追单
+@property (weak, nonatomic) IBOutlet UIButton *topBarAlermBtn;//告警百科
 @property (nonatomic,weak)  IBOutlet UIView *topbar;
 @property (weak, nonatomic) IBOutlet UIButton *bottomDetailBtn;
 @property (weak, nonatomic) IBOutlet UIButton *bottomProgressRecordBtn;//进程记录
@@ -27,7 +28,6 @@
 @property (weak, nonatomic) IBOutlet UIScrollView *mainScrollView;
 @property (weak, nonatomic) IBOutlet UIScrollView *formFlowView;
 @property (weak, nonatomic) IBOutlet UIScrollView *followScrollView;
-
 @property(nonatomic, strong) PhoneViewPoper *viewPoper;//picker
 @property (nonatomic,strong) NSMutableDictionary *detailDic;//订单详情结果
 
@@ -37,7 +37,7 @@
 @property (nonatomic, strong) NSArray *detailInfoArr;
 @property (nonatomic, strong) NSMutableDictionary *dealDic;
 @property (nonatomic, strong) NSString *handleExpStr;
-@property (nonatomic, strong) NSArray *formFlowArr;
+@property (nonatomic, strong) NSArray *formFlowArr,*alarmBKArr;
 
 @property (nonatomic, strong)UIImagePickerController *imagePickerController;
 //@property (nonatomic, strong)UIPickerView *picker;
@@ -306,6 +306,74 @@
 //    //http://10.19.116.148:8899/alarm/get_form_detail/?{"FormNo":"HN-051-130810-00036"}
 //}
 
+
+-(void)getAlarmBK{
+    NSMutableDictionary *dic = [NSMutableDictionary dictionary];
+    [dic setSafeObject:self.alarmId forKey:@"AlarmId"];
+
+    [GDServiceV2 requestFunc:@"cpt_get_alarm_bk" WithParam:dic withCompletBlcok:^(id reObj, NSError *error) {
+        if (error==nil&&[reObj isKindOfClass:[NSArray class]]) {
+            self.alarmBKArr = reObj;
+        }
+    }];
+}
+
+-(void)updateAlarmBKView{
+
+    for (UIView* aView in self.mainScrollView.subviews) {
+        [aView removeFromSuperview];
+    }
+    
+    float yPositon = 5;
+
+    NSArray *arr=self.alarmBKArr;
+    BOOL gaojin=NO;
+    for (int i=0; i<arr.count; i++) {
+        NSDictionary *dic=arr[i];
+        NSString *left=dic[@"Key"];
+        NSString *right=[dic[@"Value"] decodeBase64];
+        NSLog(@"---------\n   %@",right);
+        
+        CGSize size=[right sizeWithFont:[UIFont systemFontOfSize:16] constrainedToSize:CGSizeMake(0.75*self.view.frame.size.width-10, 5000)];
+        
+        if (size.height<30) {
+            size=CGSizeMake(200, 25);
+        }
+        
+        float newHigh=size.height;
+        if (newHigh>25) {
+            newHigh+=20;
+        }
+        GDTextView*t2=[[GDTextView alloc] initWithFrame:CGRectMake(0.25*self.view.frame.size.width+5, yPositon, 0.75*self.view.frame.size.width, newHigh)]
+        ;
+        t2.contentInset=UIEdgeInsetsMake(-7, 0, 0, 0);
+        t2.font=[UIFont systemFontOfSize:16];
+        t2.alwaysBounceVertical=YES;
+        t2.backgroundColor=[UIColor clearColor];
+        t2.scrollEnabled=NO;
+        t2.text=right;
+        t2.editable=NO;
+        
+        GDTextView *t=[[GDTextView alloc] initWithFrame:CGRectMake(5, yPositon, 0.25*self.view.frame.size.width, newHigh)];
+        t.contentInset=UIEdgeInsetsMake(-7, 0, 0, 0);
+        t.alwaysBounceVertical=YES;
+        t.font=[UIFont systemFontOfSize:16];
+        t.backgroundColor=[UIColor clearColor];
+        t.scrollEnabled=NO;
+        t.text=[NSString stringWithFormat:@"%@:",left];
+        t.editable=NO;
+        if (gaojin==NO) {
+            [self.mainScrollView addSubview:t];
+            [self.mainScrollView addSubview:t2];
+        }else{
+            
+        }
+        yPositon+=newHigh;
+        
+    }
+    yPositon+=5;
+
+}
 -(void)getDetail{
     NSMutableDictionary *dic = [NSMutableDictionary dictionary];
 //    self.formNo=@"HB-051-141224-23086";
@@ -330,6 +398,7 @@
 
         }
         [self getFormFlow:nil];
+        [self getAlarmBK];
         [self updateFollowView];
     }];
     
@@ -750,6 +819,7 @@
     self.topbarBaseInfoBtn.selected = NO;
     self.topbarDetailInfoBtn.selected = NO;
     self.topBarHistoryBtn.selected = NO;
+    self.topBarAlermBtn.selected = NO;
     selBtn.selected = YES;
     switch (selBtn.tag) {
         case 1:{
@@ -769,6 +839,13 @@
 
         }
             break;
+        case 4: {
+            self.mainScrollView.hidden=NO;
+            self.followScrollView.hidden=YES;
+            [self updateAlarmBKView];
+        }
+            break;
+
         default:
             break;
     }
@@ -1428,136 +1505,6 @@
     }
     yPositon+=5;
     [self infoDealwithY:yPositon rightXposition:rightXposition checkalert:gaojin];
-    
- /*//   yPositon=fHeight;
-   老代码
-    UILabel *theStaticLabel = [[UILabel alloc]initWithFrame:CGRectMake(10, yPositon, 80, 20)];
-    theStaticLabel.font = [UIFont systemFontOfSize:16.0];
-    theStaticLabel.backgroundColor = [UIColor clearColor];
-    
-    NSString *str = nil;
-    CGSize size = CGSizeZero;
-    UILabel *theRightLabel = [[UILabel alloc]initWithFrame:CGRectMake(rightXposition, yPositon, 220, size.height)];
-    theRightLabel.backgroundColor = [UIColor clearColor];
-    theRightLabel.font = [UIFont systemFontOfSize:16.0];
-    theRightLabel.numberOfLines = 0;
-    theRightLabel.text = str;
-    
-    NSArray *arr;
-    if (self.topbarBaseInfoBtn.selected) {
-        arr = [self.basedInfoDic objectForKey:@"Result"];
-    }else if (self.topbarDetailInfoBtn.selected) {
-        arr = self.detailInfoArr;
-    }else if (self.topBarHistoryBtn.selected) {  // 历史处理特殊处理
-        //self.handleExpStr = @"sdlkfjslkfjladskfjlsdkfjldskfjslkfjlsdkfjlsdkfjslfkj";
-        CGSize size = [self.handleExpStr sizeWithFont:[UIFont systemFontOfSize:16.0] constrainedToSize:CGSizeMake(300, 2000)];
-        UILabel *label = [[UILabel alloc]initWithFrame:CGRectMake(10, 10, 300, size.height)];
-        label.numberOfLines = 0;
-        label.backgroundColor = [UIColor clearColor];
-        label.font = [UIFont systemFontOfSize:16.0];
-        label.text = self.handleExpStr;
-        [self.mainScrollView addSubview:label];
-        [self.mainScrollView setContentSize:CGSizeMake(320, size.height+50)];
-        return;
-    }
-    
-    if (arr.count <= 0) {
-        return;
-    }
-    
-    for (NSDictionary *dic in arr) {
-        NSString *key = [dic objectForKey:@"Key"];
-        NSString *value = [dic objectForKey:@"Value"];
-        value = [value decodeBase64];
-        if ([key isEqualToString:@"告警ID"]) {
-            self.alarmId = value;
-#warning 死数据
-            //self.alarmId = @"WL-001-00-800003";
-        }
-        
-        theStaticLabel = [[UILabel alloc]initWithFrame:CGRectMake(10, yPositon, 80, 20)];
-        theStaticLabel.font = [UIFont systemFontOfSize:16.0];
-        theStaticLabel.backgroundColor = [UIColor clearColor];
-        theStaticLabel.text = [NSString stringWithFormat:@"%@：",key];
-        
-        str = value;
-        size = [self sizeWithData:str];
-        theRightLabel = [[UILabel alloc]initWithFrame:CGRectMake(rightXposition, yPositon, 220, size.height)];
-        theRightLabel.backgroundColor = [UIColor clearColor];
-        theRightLabel.font = [UIFont systemFontOfSize:16.0];
-        theRightLabel.numberOfLines = 0;
-        theRightLabel.text = str;
-        
-        yPositon += size.height>20?size.height+5:25;
-        [self.mainScrollView addSubview:theStaticLabel];
-        [self.mainScrollView addSubview:theRightLabel];
-    }
-    //self.mainScrollView.contentSize = CGSizeMake(320, yPositon);
-  
-    rightXposition -= 28;
-    if (self.topbarBaseInfoBtn.selected && self.formType == FormType_todo) {  // 基本信息特殊处理
-        
-        if (self.formState == FormState_doing) {
-            [self updateDealViewWithYposition:yPositon];
-            return;
-        }else if (self.formState == FormState_todo) {
-            // 操作按钮
-            if (self.isLeader) {  // 班组长才有权限
-                // 指定
-                UIButton *appointBtn = [[UIButton alloc]initWithFrame:CGRectMake(rightXposition, yPositon, 79, 26)];
-                [appointBtn setTitle:@"指定" forState:UIControlStateNormal];
-                appointBtn.backgroundColor = [UIColor redColor];
-                appointBtn.titleLabel.font = [UIFont systemFontOfSize:16.0];
-                [appointBtn setImage:[UIImage imageNamed:@"appoint"] forState:UIControlStateNormal];
-                [appointBtn setImage:[UIImage imageNamed:@"appoint_sel"] forState:UIControlStateHighlighted];
-                [appointBtn addTarget:self action:@selector(appointBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
-                [self.mainScrollView addSubview:appointBtn];
-            }
-            // 受理
-            UIButton *acceptBtn = [[UIButton alloc]initWithFrame:CGRectMake(rightXposition+84, yPositon, 79, 26)];
-            [acceptBtn setTitle:@"受理" forState:UIControlStateNormal];
-            [acceptBtn setImage:[UIImage imageNamed:@"accept"] forState:UIControlStateNormal];
-            [acceptBtn setImage:[UIImage imageNamed:@"accept_sel"] forState:UIControlStateHighlighted];
-            acceptBtn.backgroundColor = [UIColor redColor];
-            acceptBtn.titleLabel.font = [UIFont systemFontOfSize:16.0];
-            [acceptBtn addTarget:self action:@selector(acceptBtnClicked) forControlEvents:UIControlEventTouchUpInside];
-            [self.mainScrollView addSubview:acceptBtn];
-            
-            // 驳回
-            UIButton *rejectBtn = [[UIButton alloc]initWithFrame:CGRectMake(rightXposition+84+84, yPositon, 79, 26)];
-            [rejectBtn setTitle:@"驳回" forState:UIControlStateNormal];
-            [rejectBtn setImage:[UIImage imageNamed:@"reject"] forState:UIControlStateNormal];
-            [rejectBtn setImage:[UIImage imageNamed:@"reject_sel"] forState:UIControlStateHighlighted];
-            rejectBtn.backgroundColor = [UIColor redColor];
-            rejectBtn.titleLabel.font = [UIFont systemFontOfSize:16.0];
-            [rejectBtn addTarget:self action:@selector(rejectBtnClicked) forControlEvents:UIControlEventTouchUpInside];
-            [self.mainScrollView addSubview:rejectBtn];
-        }
-    }
-    else if (self.formType == FormType_copy && self.topbarBaseInfoBtn.selected) {
-        
-        UIButton *cancelBtn = [[UIButton alloc]initWithFrame:CGRectMake(rightXposition+84, yPositon, 79, 26)];
-        [cancelBtn setTitle:@"取消" forState:UIControlStateNormal];
-        [cancelBtn setBackgroundImage:[UIImage imageNamed:@"operBtn"] forState:UIControlStateNormal];
-        [cancelBtn setBackgroundImage:[UIImage imageNamed:@"operBtn"] forState:UIControlStateHighlighted];
-        [cancelBtn addTarget:self action:@selector(cancelBtnClicked) forControlEvents:UIControlEventTouchUpInside];
-        cancelBtn.backgroundColor = [UIColor clearColor];
-        [self.mainScrollView addSubview:cancelBtn];
-        // 已阅
-        UIButton *readFormBtn = [[UIButton alloc]initWithFrame:CGRectMake(rightXposition+84+84, yPositon, 79, 26)];
-        [readFormBtn setTitle:@"已阅" forState:UIControlStateNormal];
-        [readFormBtn setBackgroundImage:[UIImage imageNamed:@"operBtn"] forState:UIControlStateNormal];
-        [readFormBtn setBackgroundImage:[UIImage imageNamed:@"operBtn_sel"] forState:UIControlStateHighlighted];
-        readFormBtn.backgroundColor = [UIColor redColor];
-        readFormBtn.titleLabel.font = [UIFont systemFontOfSize:16.0];
-        [readFormBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-        [readFormBtn addTarget:self action:@selector(readTheForm) forControlEvents:UIControlEventTouchUpInside];
-        [self.mainScrollView addSubview:readFormBtn];
-        
-    }
-    yPositon += 50;
-    self.mainScrollView.contentSize = CGSizeMake(320, yPositon);
-  */
 }
      
 -(void)infoDealwithY:(float)yPositon rightXposition:(float)rightXposition checkalert:(BOOL)b{

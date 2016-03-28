@@ -12,6 +12,7 @@
 #import "GDCommonRootTVC.h"
 #import "GDLoginVC.h"
 #import "GDServiceV2.h"
+#import "GDMutilVC.h"
 @interface GDWaitTodoVC ()
 @property(nonatomic, strong)GDListPageOperationView *operationView;
 @property(nonatomic, strong)UITableView *tableView;
@@ -36,6 +37,28 @@
         self.title = @"待办工单";
     }
     return self;
+}
+
+-(void)getClientStatus{
+    if (SharedDelegate.userZhName==nil||[SharedDelegate.userZhName isEqualToString:@""]) {
+        return;
+    }
+    NSMutableDictionary *dic = [NSMutableDictionary dictionary];
+    
+    [GDServiceV2 requestFunc:@"get_client_status" WithParam:dic withCompletBlcok:^(id reObj,NSError* error) {
+        if ([reObj isKindOfClass:[NSDictionary class]]) {
+            if ([reObj[@"Result"] integerValue]==0) {
+                SharedDelegate.userZhName=nil;
+                SharedDelegate.userZhName =@"";
+                GDLoginVC *loginVC = [[GDLoginVC alloc]init];
+                [self presentViewController:loginVC animated:NO completion:^{
+                    //
+                }];
+            }
+            
+            
+        }
+    }];
 }
 
 - (void)viewDidLoad
@@ -88,12 +111,29 @@
     [refreshBtn setImage:[UIImage imageNamed:@"refresh"] forState:UIControlStateNormal];
     [refreshBtn addTarget:self action:@selector(getData) forControlEvents:UIControlEventTouchUpInside];
     
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithCustomView:refreshBtn];
+    UIButton *refreshBtn2 = [[UIButton alloc]initWithFrame:CGRectMake(270, 11, 22, 22)];
+    [refreshBtn2 setImage:[UIImage imageNamed:@"detail_sel"] forState:UIControlStateNormal];
+    [refreshBtn2 addTarget:self action:@selector(mutilDeal) forControlEvents:UIControlEventTouchUpInside];
+
+    
+    UIBarButtonItem*itemFresh=[[UIBarButtonItem alloc]initWithCustomView:refreshBtn];
+    UIBarButtonItem *blankItem=[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
+    blankItem.width=30;
+    UIBarButtonItem*itemMutil=[[UIBarButtonItem alloc]initWithCustomView:refreshBtn2];
+
+    self.navigationItem.rightBarButtonItems = @[itemFresh,blankItem,itemMutil];
     CGRect rec = refreshBtn.frame;
     rec.origin.x -= 20;
     self.navigationItem.rightBarButtonItem.customView.frame = rec;
     //[self.navigationController.navigationBar addSubview:refreshBtn];
 }
+
+-(void)mutilDeal{
+    GDMutilVC*mutil=[[GDMutilVC alloc] init];
+    mutil.hidesBottomBarWhenPushed = YES;
+    [self.navigationController pushViewController:mutil animated:YES];
+}
+
 - (void)searchBtnClicked {
     if (self.topSearchView) {
         [self.topSearchView closeTopSearchViewWithBlock:^{
@@ -110,6 +150,7 @@
 
 
 - (void)getData{
+    [self getClientStatus];
     if (SharedDelegate.userZhName==nil||[SharedDelegate.userZhName isEqualToString:@""]) {
         return;
     }
