@@ -43,11 +43,11 @@
 typedef void(^CompletionBlock)(id aResultObject, NSError* anError, id anExtraData);
 
 #define SharedDelegate  ((AppDelegate*)[UIApplication sharedApplication].delegate)
-//#ifdef DEBUG
-//# define NSLog(...) NSLog(__VA_ARGS__)
-//#else
-//#define NSLog(...) {}
-//#endif
+#ifdef DEBUG
+# define NSLog(...) NSLog(__VA_ARGS__)
+#else
+#define NSLog(...) {}
+#endif
 
 //颜色和透明度设置
 #define RGBA(r,g,b,a)               [UIColor colorWithRed:(float)r/255.0f green:(float)g/255.0f blue:(float)b/255.0f alpha:a]
