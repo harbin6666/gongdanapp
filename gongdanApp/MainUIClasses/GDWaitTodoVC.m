@@ -46,6 +46,7 @@
         [self presentViewController:loginVC animated:NO completion:^{
             //
         }];
+        return;
     }
     CGRect rec = self.view.bounds;
     rec.size.height -= 50;
@@ -107,7 +108,24 @@
     }
 }
 
+-(void)getClientStatus{
+    if (SharedDelegate.userZhName==nil||[SharedDelegate.userZhName isEqualToString:@""]) {
+        return;
+    }
+    NSMutableDictionary *dic = [NSMutableDictionary dictionary];
 
+    [GDServiceV2 requestFunc:@"get_client_status" WithParam:dic withCompletBlcok:^(id reObj,NSError* error) {
+        if ([reObj isKindOfClass:[NSDictionary class]]) {
+            if ([reObj[@"Result"] integerValue]==0) {
+                SharedDelegate.userZhName=nil;
+                SharedDelegate.userZhName =@"";
+                [self viewDidLoad];
+            }
+
+            
+        }
+    }];
+}
 
 - (void)getData{
     if (SharedDelegate.userZhName==nil||[SharedDelegate.userZhName isEqualToString:@""]) {

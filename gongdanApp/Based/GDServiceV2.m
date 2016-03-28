@@ -18,7 +18,12 @@
 @end
 @implementation GDServiceV2
 +(void)requestFunc:(NSString*)funName WithParam:(NSMutableDictionary*)param withCompletBlcok:(compBlock)block{
-    [param setObject:@2 forKey:@"PfType"];
+    [param setObject:@"2" forKey:@"PfType"];
+    [param setObject:@"1" forKey:@"AppType"];
+    if (SharedDelegate.loginedUserName!=nil) {
+        [param setObject:SharedDelegate.loginedUserName forKey:@"UserId"];
+    }
+    [param setObject:[[[UIDevice currentDevice] identifierForVendor] UUIDString] forKey:@"DeviceId"];
     [param setObject:@"mq_pass_2" forKey:@"Function"];
     [param setObject:funName forKey:@"ServiceName"];
     ASIHTTPRequest *request=[[ASIHTTPRequest alloc] initWithURL:[NSURL URLWithString:host2]];
@@ -45,7 +50,7 @@
             if (request.error==nil) {
                 NSData *jsonData=request.responseData;
                 NSString *responseString=[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-//                NSLog(@"%@",responseString);
+                NSLog(@"%@",responseString);
                 responseString = [responseString stringByReplacingOccurrencesOfString : @"\r" withString : @"\\r" ];
                 
                 responseString = [responseString stringByReplacingOccurrencesOfString : @"\n" withString : @"\\n" ];

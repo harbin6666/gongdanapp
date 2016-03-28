@@ -53,6 +53,7 @@
 @implementation GDHttpRequest
 @synthesize comBlock = _comBlock;
 - (id)initReqWithFunctionName:(NSString *)funcionName pramaDic:(NSMutableDictionary*)pramaDic requestMethod:(NSString*)method completion:(comp)completion{
+
     NSString *urlStr = [host1 stringByAppendingString:[NSString stringWithFormat:@"%@/",funcionName]];
     [self addRequestHeader:@"text/json" value:@"Content-Type"];
     if ([method isEqualToString:@"GET"] || method == nil) {

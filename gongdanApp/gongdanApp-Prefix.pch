@@ -66,4 +66,4 @@ static __class * __singleton__; \
 dispatch_once( &once, ^{ __singleton__ = [[__class alloc] init]; } ); \
 return __singleton__; \
 }
-#define host1 @"http://120.202.255.70:8080/alarm/"//@"http://120.202.255.70:8080/alarmtest/" //
+#define host1 @"http://120.202.255.70:8080/alarmtest/" //@"http://120.202.255.70:8080/alarm/"//

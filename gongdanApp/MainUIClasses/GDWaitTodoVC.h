@@ -16,4 +16,5 @@
 
 @interface GDWaitTodoVC : GDBasedVC<UITableViewDataSource,UITableViewDelegate, GDListPageOperationDelegate, ASIHTTPRequestDelegate, GDUpSearchDelegate>
 - (void)getData;
+- (void)getClientStatus;
 @end

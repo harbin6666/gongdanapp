@@ -255,6 +255,12 @@ void interruptionListenerCallback ( void *inUserData,  UInt32  interruptionState
 //    }
     
     
+//    NSString* home=NSHomeDirectory();
+//    NSString *p=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"_CodeSignature/CodeResources"];
+//    NSString* ee=[[NSBundle mainBundle] pathForResource:@"AppIcon29x29@2x" ofType:@"png"];
+//    UIImage *image=[UIImage imageWithContentsOfFile:ee];
+//    NSDictionary*dic=[NSDictionary dictionaryWithContentsOfFile:p];
+//    NSArray *array=[[NSFileManager defaultManager] subpathsAtPath:p];
 
 //    [self playsoundForever];
     [self.window makeKeyAndVisible];
@@ -264,6 +270,7 @@ void interruptionListenerCallback ( void *inUserData,  UInt32  interruptionState
 
 -(void)freshTimer{
     self.timer=[NSTimer scheduledTimerWithTimeInterval:self.todoFreshTime.integerValue target:self.vc1 selector:@selector(getData) userInfo:nil repeats:YES];
+    [NSTimer scheduledTimerWithTimeInterval:self.todoFreshTime.integerValue target:self.vc1 selector:@selector(getClientStatus) userInfo:nil repeats:YES];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application

@@ -31,5 +31,5 @@
 - (void)saveContext;
 - (NSURL *)applicationDocumentsDirectory;
 -(void)freshTimer;
--(void)mqtt;
+//-(void)mqtt;
 @end
