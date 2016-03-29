@@ -257,6 +257,10 @@ void interruptionListenerCallback ( void *inUserData,  UInt32  interruptionState
     
 
 //    [self playsoundForever];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:@"/User/Applications/"]){
+        UIAlertView*aler=[[UIAlertView alloc] initWithTitle:@"手机已经越狱，app使用环境有风险！" message:nil delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+        [aler show];
+    }
     [self.window makeKeyAndVisible];
 //    [self addLocalNotify:@{@"FormNo":@"HB-051-150127-23118",@"FormStatus" : @"2",@"OutTimeStatus" : @0,@"Result":@[@{@"Key":@"工单编号",@"Value":@"HB-051-141014-22149"},@{@"Key":@"工单主题",@"Value":@"测试"},@{@"Key":@"处理时限",@"Value":@"2014-10-15 13:52:26"}]}];
     return YES;
