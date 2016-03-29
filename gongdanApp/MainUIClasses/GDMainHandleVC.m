@@ -372,8 +372,9 @@
         
     }
     yPositon+=5;
-
+    self.mainScrollView.contentSize = CGSizeMake(320, yPositon);
 }
+
 -(void)getDetail{
     NSMutableDictionary *dic = [NSMutableDictionary dictionary];
 //    self.formNo=@"HB-051-141224-23086";
@@ -825,6 +826,7 @@
         case 1:{
             self.mainScrollView.hidden=NO;
             self.followScrollView.hidden=YES;
+            [self.mainScrollView setContentOffset:CGPointMake(0, 0)];
             [self updateDisplayView];
         }
             break;
@@ -842,6 +844,7 @@
         case 4: {
             self.mainScrollView.hidden=NO;
             self.followScrollView.hidden=YES;
+            [self.mainScrollView setContentOffset:CGPointMake(0, 0)];
             [self updateAlarmBKView];
         }
             break;

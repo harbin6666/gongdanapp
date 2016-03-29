@@ -60,6 +60,12 @@
 }
 
 -(void)clickAcept{
+    
+    if (self.selectArray.count==0) {
+        UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"没有选择工单" message:nil delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+        [alert show];
+        return;
+    }
     UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"确定要批量提交受理吗？" message:nil delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"受理",nil];
     [alert show];
 
@@ -73,11 +79,11 @@
         NSDictionary *form=[self.dataArr objectAtIndex:indexP.row];
         [formNum appendFormat:@"%@,",form[@"FormNo"]];
     }
-    [formNum substringToIndex:formNum.length-2];
+    NSString*subStr=[formNum substringToIndex:formNum.length-1];
     
     NSMutableDictionary *dic = [NSMutableDictionary dictionary];
     [dic setSafeObject:SharedDelegate.loginedUserName forKey:@"Dealor"];
-    [dic setSafeObject:formNum forKey:@"FormNo"];
+    [dic setSafeObject:subStr forKey:@"FormNo"];
     [dic setSafeObject:__INT(3) forKey:@"FormState"];
     [dic setSafeObject:[self dateToNSString:[NSDate date]] forKey:@"StartTime"];
     [dic setSafeObject:@"2" forKey:@"PfType"];
@@ -87,6 +93,7 @@
         [self hideLoading];
         if ([reObj isKindOfClass:[NSDictionary class]]) {
             NSDictionary *dic = reObj;
+            [self getData];
             //int state = ((NSNumber*)[dic objectForKey:@"Flag"]).intValue;
             NSString *str = [dic objectForKey:@"Flag"];
             if ([str isEqualToString:@"成功"]){//(state == 0) {
@@ -94,7 +101,6 @@
                 //[self.navigationController popToRootViewControllerAnimated:YES];
                 UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"受理成功" message:str delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
                 [alert show];
-                [self getData];
             }else{
                 UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"受理失败" message:str delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
                 [alert show];
@@ -136,6 +142,7 @@
             // 正常返回
             NSArray*temp = reObj;
             [self.dataArr removeAllObjects];
+            [self.selectArray removeAllObjects];
             for (NSDictionary *dic in temp) {
                 if ([dic[@"FormStatus"] integerValue]==2) {
                     [self.dataArr addObject:dic];
