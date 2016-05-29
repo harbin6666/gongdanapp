@@ -17,6 +17,7 @@ typedef void(^comp)(id reObj);
 + (void)requestWithFunctionName:(NSString*)functionName pramaDic:(NSMutableDictionary*)pramaDic requestMethod:(NSString*)method completion:(comp)completion;
 
 + (void)requestWithFunctionName:(NSString*)functionName uploadData:(NSData*)uploadData completion:(comp)completion;
+
 @end
 
 
@@ -27,4 +28,5 @@ typedef void(^comp)(id reObj);
 @property(nonatomic, strong)NSMutableDictionary* pramaDic;
 @property(nonatomic, copy)comp comBlock;
 - (id)initReqWithFunctionName:(NSString *)funcionName pramaDic:(NSMutableDictionary*)pramaDic requestMethod:(NSString*)method completion:(comp)completion;
+- (NSString *)md5:(NSString *)str;
 @end

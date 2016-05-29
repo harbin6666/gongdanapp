@@ -16,6 +16,7 @@
 
 + (void)requestWithFunctionName:(NSString*)functionName pramaDic:(NSMutableDictionary*)pramaDic requestMethod:(NSString*)method completion:(comp)completion{
     GDHttpRequest *req = [[GDHttpRequest alloc]initReqWithFunctionName:functionName pramaDic:pramaDic requestMethod:method completion:completion];
+    req.validatesSecureCertificate=NO;
     req.delegate = req;
     
     [req startAsynchronous];

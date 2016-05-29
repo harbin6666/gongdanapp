@@ -29,6 +29,7 @@
     [param setObject:funName forKey:@"ServiceName"];
     ASIHTTPRequest *request=[[ASIHTTPRequest alloc] initWithURL:[NSURL URLWithString:host2]];
     [request addRequestHeader:@"text/plain;charset=UTF-8 " value:@"Content-Type"];
+    request.validatesSecureCertificate=NO;
     NSString *jsonStr;
     NSError *error=nil;
      NSData *jsonData=[NSJSONSerialization dataWithJSONObject:param options:0 error:&error];
